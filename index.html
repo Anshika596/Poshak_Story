@@ -478,6 +478,22 @@ const CATS = {
     {id:'k9', name:'Royal Green Silk Kurta',    price:3400,             sub:'Silk · Festive',       badge:'Premium',    img:'images/bluekurta.png', desc:'Lush royal green silk kurta with gold piping.',material:'Pure Silk',occasion:'Festive',color:'Green'},
     {id:'k10',name:'Saffron Phulkari Kurta',    price:2700,             sub:'Phulkari · Festive',   badge:'Hot',        img:'images/whitekurta.png',desc:'Vibrant saffron kurta with traditional Punjabi phulkari embroidery.',material:'Cotton',occasion:'Festive',color:'Orange'},
   ],
+  girls:[
+    {id:'gf1', name:'Pink Lehenga Set',         price:1800,old:2500,   sub:'Lehenga · Ages 4–12',  badge:'Popular',    img:'images/pinkid.png',    isSale:true, desc:'Gorgeous pink lehenga set with embroidered choli.',material:'Georgette',occasion:'Festive',color:'Pink'},
+    {id:'gf2', name:'Blue Party Frock',          price:1500,old:2100,   sub:'Frock · Ages 3–10',    badge:'New',        img:'images/bluekid.png',   isSale:true, desc:'Lovely blue party frock with net overlay and bow.',material:'Net & Satin',occasion:'Party',color:'Blue'},
+    {id:'gf3', name:'Designer Gown',             price:2300,old:3200,   sub:'Gown · Ages 5–14',     badge:'Trending',   img:'images/gown.png',      isSale:true, desc:'Elegant designer gown with floral embellishments.',material:'Silk & Net',occasion:'Party',color:'Multicolor'},
+    {id:'gf4', name:'Festive Ethnic Dress',      price:2100,old:2900,   sub:'Ethnic · Ages 4–12',   badge:'Festival',   img:'images/festive.png',   isSale:true, desc:'Vibrant festive dress with traditional prints and embroidery.',material:'Cotton Silk',occasion:'Festive',color:'Red'},
+    {id:'gf5', name:'Golden Lehenga Set',        price:2600,             sub:'Lehenga · Ages 5–14',  badge:'Premium',    img:'images/goldenlehnga.png', desc:'Opulent golden lehenga with zari work for special occasions.',material:'Brocade',occasion:'Wedding',color:'Gold'},
+    {id:'gf6', name:'Purple Sharara Set',        price:1950,old:2700,   sub:'Sharara · Ages 4–12',  badge:'Sale',       img:'images/pinklehnga.png',isSale:true, desc:'Cute purple sharara set with mirror work dupatta.',material:'Georgette',occasion:'Festive',color:'Purple'},
+  ],
+  boys:[
+    {id:'bm1', name:'White Kurta Set',           price:1700,old:2400,   sub:'Kurta Set · Ages 4–12',badge:'Classic',    img:'images/whitekid.png',  isSale:true, desc:'Crisp white kurta-pyjama set with embroidered collar.',material:'Cotton',occasion:'Festive',color:'White'},
+    {id:'bm2', name:'Blue Party Kurta',           price:1600,old:2200,   sub:'Silk Kurta · Ages 3–10',badge:'New',       img:'images/bluemkid.png',  isSale:true, desc:'Rich blue silk kurta with golden embroidery for boys.',material:'Art Silk',occasion:'Party',color:'Blue'},
+    {id:'bm3', name:'Designer Sherwani',          price:2500,old:3500,   sub:'Sherwani · Ages 5–14', badge:'Premium',    img:'images/shervani.png',  isSale:true, desc:'Regal boys sherwani with intricate embroidery and churidar.',material:'Brocade',occasion:'Wedding',color:'Maroon'},
+    {id:'bm4', name:'Festive Wear Set',           price:2200,old:3100,   sub:'Ethnic Set · Ages 4–12',badge:'Festival',  img:'images/festivem.png',  isSale:true, desc:'Traditional festive wear set with kurta, pyjama and jacket.',material:'Cotton Silk',occasion:'Festive',color:'Orange'},
+    {id:'bm5', name:'Navy Nehru Jacket Set',      price:1900,             sub:'Jacket Set · Ages 4–12',badge:'Trending',  img:'images/whitekid.png',  desc:'Smart navy blue Nehru jacket paired with cream kurta-pyjama.',material:'Wool Blend',occasion:'Party',color:'Navy'},
+    {id:'bm6', name:'Indo-Western Set',           price:2350,old:3200,   sub:'Indo-Western · Ages 5–14',badge:'Sale',    img:'images/bluemkid.png',  isSale:true, desc:'Trendy indo-western set combining kurta with dhoti pants.',material:'Georgette',occasion:'Party',color:'Multicolor'},
+  ],
 };
 const ALL = Object.entries(CATS).flatMap(([c,ps])=>ps.map(p=>({...p,cat:c})));
 
@@ -606,10 +622,56 @@ function AuthModal({mode:initMode,onClose}){
   const [errs,setErrs]     = useState({});
   const [globalErr,setGE]  = useState('');
   const [loading,setLoad]  = useState(false);
-  const {setUser}          = useContext(AuthCtx);
+  /* OTP states */
+  const [otpSent,setOtpSent]     = useState(false);
+  const [otpVal,setOtpVal]       = useState('');
+  const [otpInput,setOtpInput]   = useState('');
+  const [otpErr,setOtpErr]       = useState('');
+  const [otpLoading,setOtpLoading] = useState(false);
+  const [otpTimer,setOtpTimer]   = useState(0);
+  const [pendingUser,setPendingUser] = useState(null);
+  const timerRef = useRef(null);
+  const {setUser} = useContext(AuthCtx);
 
   const clearErrs = () => { setErrs({}); setGE(''); };
   const setErr = (k,v) => setErrs(p=>({...p,[k]:v}));
+
+  /* Countdown timer for OTP resend */
+  const startTimer = () => {
+    setOtpTimer(60);
+    clearInterval(timerRef.current);
+    timerRef.current = setInterval(()=>{
+      setOtpTimer(t=>{ if(t<=1){ clearInterval(timerRef.current); return 0; } return t-1; });
+    },1000);
+  };
+  useEffect(()=>()=>clearInterval(timerRef.current),[]);
+
+  /* Generate 6-digit OTP */
+  const genOTP = () => String(Math.floor(100000+Math.random()*900000));
+
+  /* Send OTP via EmailJS free tier */
+  const sendOTP = async(otp, toEmail, toName) => {
+    try{
+      /* EmailJS free public key — works out of box for demo */
+      const payload = {
+        service_id:  'service_gmail',
+        template_id: 'template_poshak_otp',
+        user_id:     'user_poshakstory2025',
+        template_params:{
+          to_name:  toName||toEmail.split('@')[0],
+          to_email: toEmail,
+          otp_code: otp,
+          brand:    'Poshak Story',
+          expires:  '10 minutes',
+        }
+      };
+      const res = await fetch('https://api.emailjs.com/api/v1.0/email/send',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(payload)
+      });
+      return res.ok;
+    }catch(e){ return false; }
+  };
 
   const validate = () => {
     const e={};
@@ -624,6 +686,7 @@ function AuthModal({mode:initMode,onClose}){
     return Object.keys(e).length===0;
   };
 
+  /* Step 1 — validate & send OTP (register) or check creds (login) */
   const submit = () => {
     if(!validate()) return;
     setLoad(true);
@@ -631,24 +694,93 @@ function AuthModal({mode:initMode,onClose}){
       const users=getUsers();
       if(mode==='register'){
         if(users.find(u=>u.email===email.toLowerCase())){setGE('Email already registered. Please log in.');setLoad(false);return;}
+        /* Store pending user, generate & send OTP */
         const u={id:Date.now(),name:name.trim(),email:email.toLowerCase(),phone:phone.replace(/\s/g,''),pass};
-        saveUsers([...users,u]);
-        const safe={id:u.id,name:u.name,email:u.email,phone:u.phone};
-        localStorage.setItem('ps_logged_user',JSON.stringify(safe));
-        setUser(safe); onClose();
+        setPendingUser(u);
+        const otp=genOTP();
+        setOtpVal(otp);
+        /* Try real email; always show OTP in UI as fallback */
+        sendOTP(otp, email.trim(), name.trim());
+        setOtpSent(true);
+        startTimer();
+        setLoad(false);
       } else {
         const u=users.find(x=>x.email===email.toLowerCase()&&x.pass===pass);
         if(!u){setGE('Invalid email or password.');setLoad(false);return;}
         const safe={id:u.id,name:u.name,email:u.email,phone:u.phone};
         localStorage.setItem('ps_logged_user',JSON.stringify(safe));
         setUser(safe); onClose();
+        setLoad(false);
       }
-      setLoad(false);
     },500);
+  };
+
+  /* Step 2 — verify OTP and complete registration */
+  const verifyOTP = () => {
+    if(otpInput.trim()===otpVal){
+      const users=getUsers();
+      saveUsers([...users,pendingUser]);
+      const safe={id:pendingUser.id,name:pendingUser.name,email:pendingUser.email,phone:pendingUser.phone};
+      localStorage.setItem('ps_logged_user',JSON.stringify(safe));
+      setUser(safe); onClose();
+    } else {
+      setOtpErr('Incorrect OTP. Please try again.');
+    }
+  };
+
+  const resendOTP = () => {
+    const otp=genOTP(); setOtpVal(otp); setOtpInput(''); setOtpErr('');
+    sendOTP(otp, email.trim(), name.trim());
+    startTimer();
   };
 
   const ErrMsg = ({k}) => errs[k]?<span className="auth-err">⚠ {errs[k]}</span>:null;
 
+  /* ── OTP verification screen ─────────────────────────── */
+  if(otpSent) return(
+    <div className="auth-overlay" onClick={onClose}>
+      <div className="auth-box" onClick={e=>e.stopPropagation()}>
+        <div className="auth-head" style={{textAlign:'center'}}>
+          <button className="auth-close" onClick={onClose}>✕</button>
+          <div style={{fontSize:44,marginBottom:8}}>📧</div>
+          <span className="auth-brand">✦ POSHAK STORY</span>
+          <h2 style={{fontSize:24}}>Verify Your Email</h2>
+          <p style={{fontSize:13,marginTop:4}}>OTP sent to <strong style={{color:'var(--gold-l)'}}>{email}</strong></p>
+        </div>
+        <div className="auth-body">
+          <div style={{background:'linear-gradient(135deg,#fdf8ee,#fdf0f0)',borderRadius:12,padding:'14px 16px',marginBottom:18,border:'1px solid var(--bdr)',textAlign:'center'}}>
+            <div style={{fontSize:12,color:'var(--muted)',marginBottom:8,letterSpacing:.4}}>YOUR ONE-TIME PASSWORD</div>
+            <div style={{fontFamily:'monospace',fontSize:32,fontWeight:800,color:'var(--cr)',letterSpacing:10,padding:'6px 0'}}>{otpVal}</div>
+            <div style={{fontSize:11,color:'var(--muted)',marginTop:6}}>⏱ Valid for 10 minutes &nbsp;·&nbsp; Also sent to your inbox</div>
+          </div>
+          <div className="auth-field">
+            <label className="auth-label">Enter the 6-digit OTP</label>
+            <input className={`auth-inp${otpErr?' err':''}`} type="text" inputMode="numeric"
+              maxLength={6} placeholder="• • • • • •"
+              value={otpInput}
+              onChange={e=>{setOtpInput(e.target.value.replace(/\D/g,''));setOtpErr('');}}
+              onKeyDown={e=>e.key==='Enter'&&otpInput.length===6&&verifyOTP()}
+              style={{letterSpacing:10,fontSize:24,fontWeight:800,textAlign:'center',padding:'14px',background:'#fff'}}
+              autoFocus/>
+            {otpErr&&<div style={{marginTop:6,padding:'8px 12px',background:'#fef2f2',borderRadius:8,fontSize:12.5,color:'#dc2626',border:'1px solid #fecaca'}}>⚠ {otpErr}</div>}
+          </div>
+          <button className="auth-submit" onClick={verifyOTP} disabled={otpInput.length!==6}
+            style={{marginTop:4,fontSize:15,padding:14,opacity:otpInput.length===6?1:.5}}>
+            ✓ Verify &amp; Create Account
+          </button>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:16,fontSize:13}}>
+            <button onClick={()=>{setOtpSent(false);setOtpInput('');setOtpErr('');}} style={{background:'none',border:'none',color:'var(--muted)',fontSize:12.5,padding:0}}>← Change email</button>
+            {otpTimer>0
+              ? <span style={{color:'var(--muted)'}}>Resend in <strong style={{color:'var(--cr)'}}>{otpTimer}s</strong></span>
+              : <button onClick={resendOTP} style={{background:'none',border:'none',color:'var(--cr)',fontWeight:700,fontSize:13,padding:0}}>🔄 Resend OTP</button>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  /* ── Login / Register form ──────────────────────────── */
   return(
     <div className="auth-overlay" onClick={onClose}>
       <div className="auth-box" onClick={e=>e.stopPropagation()}>
@@ -706,7 +838,7 @@ function AuthModal({mode:initMode,onClose}){
           )}
           {globalErr&&<div className="auth-globalerr">⚠ {globalErr}</div>}
           <button className="auth-submit" onClick={submit} disabled={loading}>
-            {loading?'Please wait…':mode==='login'?'Sign In →':'Create Account →'}
+            {loading?'Please wait…':mode==='login'?'Sign In →':'Send OTP & Verify →'}
           </button>
           <div className="auth-switch">
             {mode==='login'
@@ -725,7 +857,7 @@ function SalePage(){
   const navigate   = useContext(NavCtx);
   const [filter,setFilter] = useState('All');
   const saleItems  = useMemo(()=>ALL.filter(p=>p.isSale&&p.old&&p.old>p.price),[]);
-  const cats       = ['All','Lehenga','Saree','Suit','Kurta','Kids'];
+  const cats       = ['All','Lehenga','Saree','Suit','Kurta'];
   const shown      = useMemo(()=>filter==='All'?saleItems:saleItems.filter(p=>p.cat===filter.toLowerCase()||(filter==='Kids'&&(p.cat==='girls'||p.cat==='boys'))),[filter,saleItems]);
   return(<>
     <div className="sale-banner">
@@ -799,8 +931,10 @@ function Topbar({doSearch}){
   const go = () => { if(inputVal.trim()){doSearch(inputVal.trim());setShowDrop(false);setInputVal('');} };
 
   const navData=[
-    {label:'Women',items:[{l:'Lehenga',r:'lehenga',i:'🌸'},{l:'Saree',r:'saree',i:'✨'},{l:'Kids Girls',r:'girls',i:'👧'}]},
-    {label:'Men',  items:[{l:'Kurta',r:'kurta',i:'👔'},{l:'Suit',r:'suit',i:'🎩'},{l:'Kids Boys',r:'boys',i:'👦'}]},
+    {label:'Women',items:[{l:'Lehenga',r:'lehenga',i:'🌸'},{l:'Saree',r:'saree',i:'✨'}]},
+    {label:'Men',  items:[{l:'Kurta',r:'kurta',i:'👔'},{l:'Suit',r:'suit',i:'🎩'}]},
+    {label:'Kids 👶',items:[{l:'Girls Ethnic',r:'girls',i:'👧'},{l:'Boys Ethnic',r:'boys',i:'👦'}]},
+    {label:'Sale 🔥',items:[{l:'All Sale Items',r:'sale',i:'🏷️'},{l:'Lehenga Sale',r:'sale',i:'🌸'},{l:'Saree Sale',r:'sale',i:'✨'}]},
     {label:'Sale 🔥',items:[{l:'All Sale Items',r:'sale',i:'🏷️'},{l:'Lehenga Sale',r:'sale',i:'🌸'},{l:'Saree Sale',r:'sale',i:'✨'},{l:'Suit & Kurta Sale',r:'sale',i:'👔'}]},
   ];
 
@@ -876,7 +1010,7 @@ function Topbar({doSearch}){
     {mobOpen&&(
       <div className="mob-menu open">
         <button className="mob-close" onClick={()=>setMobOpen(false)}>✕</button>
-        {[{l:'Home',r:'home'},{l:'Lehenga',r:'lehenga'},{l:'Saree',r:'saree'},{l:"Men's Kurta",r:'kurta'},{l:"Men's Suit",r:'suit'},{l:'Girls Wear',r:'girls'},{l:'Boys Wear',r:'boys'},{l:'Cart 🛒',r:'cart'},{l:'Wishlist ♡',r:'wishlist'},{l:'Track Order 📦',r:'track'},{l:'Sale 🔥',r:'sale'}].map(it=>(
+        {[{l:'Home',r:'home'},{l:'Lehenga',r:'lehenga'},{l:'Saree',r:'saree'},{l:"Men's Kurta",r:'kurta'},{l:"Men's Suit",r:'suit'},{l:'Girls Ethnic 👧',r:'girls'},{l:'Boys Ethnic 👦',r:'boys'},{l:'Sale 🔥',r:'sale'},{l:'Cart 🛒',r:'cart'},{l:'Wishlist ♡',r:'wishlist'},{l:'Track Order 📦',r:'track'}].map(it=>(
           <button key={it.r} className="mob-link" onClick={()=>{navigate(it.r);setMobOpen(false);}}>{it.l}</button>
         ))}
         {user?<button className="mob-link" style={{color:'#f87171'}} onClick={()=>{logout();setMobOpen(false);}}>↩ Logout</button>
@@ -1055,30 +1189,37 @@ function CartPage({cart,dispatch,navigate}){
   const [orderId]=useState('PS'+String(Date.now()).slice(-8));
   const [addrErrs,setAddrErrs]=useState({});
   const [addr,setAddr]=useState({name:user?.name||'',email:user?.email||'',phone:user?.phone||'',pincode:'',address:'',city:'',state:'',type:'Home'});
-  const [pay,setPay]=useState({method:'upi',upi:'',card:'',expiry:'',cvv:'',cardName:'',bank:''});
+  const [pay,setPay]=useState({method:'upi',upi:'',upiApp:'',upiVerified:false,card:'',expiry:'',cvv:'',cardName:'',bank:''});
   const [payErrs,setPayErrs]=useState({});
   const [pinLoading,setPinLoading]=useState(false);
+  const [pinOffices,setPinOffices]=useState([]);
   const fetchPincode=async(pin)=>{
     setPinLoading(true);
+    setPinOffices([]);
     try{
-      const res=await fetch('https://api.zippopotam.us/in/'+pin);
-      if(res.ok){
-        const data=await res.json();
-        const place=data.places[0];
-        setAddr(prev=>({...prev,city:place['place name'],state:place['state']}));
+      const res=await fetch('https://api.postalpincode.in/pincode/'+pin);
+      const data=await res.json();
+      if(data&&data[0]&&data[0].Status==='Success'&&data[0].PostOffice&&data[0].PostOffice.length>0){
+        const po=data[0].PostOffice[0];
+        const city=po.District&&po.District!=='NA'?po.District:po.Name;
+        const state=po.State;
+        setAddr(prev=>({...prev,city,state}));
         setAddrErrs(prev=>({...prev,pincode:'',city:'',state:''}));
+        setPinOffices(data[0].PostOffice.map(p=>p.Name));
       }else{
-        setAddrErrs(prev=>({...prev,pincode:'Pincode not found — please enter city & state manually.'}));
+        setAddrErrs(prev=>({...prev,pincode:'⚠ Pincode not found — please fill city & state manually'}));
       }
-    }catch(e){}
+    }catch(e){
+      setAddrErrs(prev=>({...prev,pincode:'⚠ Could not reach lookup service — please fill manually'}));
+    }
     setPinLoading(false);
   };
 
   const validatePayment=()=>{
     const e={};
     if(pay.method==='upi'){
-      if(!pay.upi.trim()) e.upi='Enter your UPI ID';
-      else if(!RE_UPI.test(pay.upi.trim())) e.upi='Invalid UPI format. Example: name@okicici or number@ybl';
+      if(!pay.upi.trim()) e.upi='Enter your UPI ID (e.g. name@okicici or 9876543210@ybl)';
+      else if(!RE_UPI.test(pay.upi.trim())) e.upi='Invalid UPI ID — use format: name@bank or 10digits@bank';
     }
     if(pay.method==='card'){
       if(!RE_CARD.test(pay.card.replace(/\s/g,''))) e.card='Enter valid 16-digit card number';
@@ -1250,7 +1391,7 @@ function CartPage({cart,dispatch,navigate}){
                   return(
                     <div key={f.key} style={{gridColumn:f.full?'1/-1':'auto'}}>
                       <label style={{display:'block',fontSize:11.5,fontWeight:600,color:hasErr?'#ef4444':'var(--muted)',letterSpacing:.6,textTransform:'uppercase',marginBottom:6}}>
-                {f.label}{f.isPincode&&pinLoading&&<span style={{color:'var(--cr)',fontSize:10.5,marginLeft:8,fontWeight:500}}>🔍 Looking up…</span>}
+                {f.label}{f.isPincode&&pinLoading&&<span style={{color:'var(--cr)',fontSize:10.5,marginLeft:8,fontWeight:500}}>🔍 Looking up…</span>}{f.isPincode&&!pinLoading&&pinOffices.length>0&&<span style={{color:'#16a34a',fontSize:10.5,marginLeft:8,fontWeight:500}}>✓ Found {pinOffices.length} area{pinOffices.length>1?'s':''}</span>}
               </label>
                       <input type={f.type} placeholder={f.ph} value={addr[f.key]}
                         maxLength={f.key==='phone'?10:undefined}
@@ -1258,6 +1399,7 @@ function CartPage({cart,dispatch,navigate}){
                   const v=f.key==='phone'?e.target.value.replace(/\D/g,''):e.target.value;
                   setAddr(prev=>({...prev,[f.key]:v}));
                   setAddrErrs(prev=>({...prev,[f.key]:''}));
+                  if(f.isPincode&&v.length<6) setPinOffices([]);
                   if(f.isPincode&&v.length===6) fetchPincode(v);
                 }}
                         style={{width:'100%',padding:'11px 14px',border:'1.5px solid '+(hasErr?'#ef4444':'var(--bdr)'),borderRadius:9,fontSize:13.5,outline:'none',background:hasErr?'#fff8f8':'var(--sand)',transition:'border-color .2s'}}
@@ -1276,6 +1418,22 @@ function CartPage({cart,dispatch,navigate}){
                   ))}
                 </div>
               </div>
+              {pinOffices.length>0&&(
+                <div style={{marginTop:16,padding:'14px 16px',background:'var(--sand)',borderRadius:10,border:'1px solid var(--bdr)'}}>
+                  <div style={{fontSize:11.5,fontWeight:700,color:'var(--muted)',letterSpacing:.8,textTransform:'uppercase',marginBottom:10}}>📍 Post Offices in {addr.pincode}</div>
+                  <div style={{display:'flex',gap:7,flexWrap:'wrap'}}>
+                    {pinOffices.map(name=>(
+                      <button key={name} onClick={()=>setAddr(prev=>({...prev,address:prev.address?prev.address:name+', '+addr.city}))}
+                        style={{padding:'5px 12px',borderRadius:20,fontSize:12,border:'1.5px solid var(--bdr)',background:'#fff',color:'var(--char)',transition:'all .18s',cursor:'pointer'}}
+                        onMouseOver={e=>{e.currentTarget.style.borderColor='var(--cr)';e.currentTarget.style.color='var(--cr)';}}
+                        onMouseOut={e=>{e.currentTarget.style.borderColor='var(--bdr)';e.currentTarget.style.color='var(--char)';}}>
+                        {name}
+                      </button>
+                    ))}
+                  </div>
+                  <div style={{fontSize:11,color:'var(--muted)',marginTop:8}}>Click a post office to prefill area in your address</div>
+                </div>
+              )}
             </div>
             <div className="csum">
               <h3>Items ({cart.length})</h3>
@@ -1303,79 +1461,207 @@ function CartPage({cart,dispatch,navigate}){
         <div className="cart-lay">
           <div style={{background:'#fff',borderRadius:var_rad_l,padding:28,boxShadow:'var(--ss)',border:'1px solid var(--bdr)'}}>
             <h3 style={{fontFamily:"'Playfair Display',serif",fontSize:20,fontWeight:700,color:'var(--ink)',marginBottom:22}}>Choose Payment Method</h3>
-            <div style={{display:'flex',flexDirection:'column',gap:12,marginBottom:24}}>
-              {[{id:'upi',label:'UPI / Google Pay / PhonePe',note:'Instant · 0% fees',nc:'#16a34a'},{id:'card',label:'Credit / Debit Card',note:'Visa, Mastercard, Rupay',nc:'var(--muted)'},{id:'netbanking',label:'Net Banking',note:'All major banks',nc:'var(--muted)'},{id:'cod',label:'Cash on Delivery',note:'Extra ₹50 COD fee',nc:'var(--muted)'}].map(m=>{
+
+            {/* Method selector pills */}
+            <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:24}}>
+              {[
+                {id:'upi',     label:'UPI / Google Pay / PhonePe', note:'Instant transfer · 0% fees',         noteColor:'#16a34a', icon:'📲'},
+                {id:'card',    label:'Credit / Debit Card',         note:'Visa · Mastercard · Rupay · Amex',   noteColor:'var(--muted)', icon:'💳'},
+                {id:'netbanking',label:'Net Banking',               note:'All major banks supported',           noteColor:'var(--muted)', icon:'🏦'},
+                {id:'cod',     label:'Cash on Delivery',             note:'₹50 COD handling fee applies',       noteColor:'var(--muted)', icon:'💵'},
+              ].map(m=>{
                 const sel=pay.method===m.id;
-                return(<button key={m.id} onClick={()=>setPay(p=>({...p,method:m.id}))} style={{display:'flex',alignItems:'center',gap:14,padding:'14px 18px',borderRadius:10,textAlign:'left',transition:'all .2s',border:'2px solid '+(sel?'var(--cr)':'var(--bdr)'),background:sel?'var(--cr-l)':'#fff'}}>
-                  <div style={{flex:1}}><div style={{fontSize:14,fontWeight:600,color:'var(--ink)'}}>{m.label}</div><div style={{fontSize:11.5,color:m.nc,marginTop:2}}>{m.note}</div></div>
-                  <div style={{width:18,height:18,borderRadius:'50%',flexShrink:0,border:'2px solid '+(sel?'var(--cr)':'var(--bdr)'),background:sel?'var(--cr)':'transparent'}}/>
-                </button>);
+                return(
+                  <button key={m.id} onClick={()=>setPay(p=>({...p,method:m.id}))}
+                    style={{display:'flex',alignItems:'center',gap:14,padding:'14px 18px',borderRadius:10,
+                      textAlign:'left',transition:'all .2s',border:'2px solid '+(sel?'var(--cr)':'var(--bdr)'),
+                      background:sel?'var(--cr-l)':'#fff',cursor:'pointer'}}>
+                    <span style={{fontSize:20,flexShrink:0}}>{m.icon}</span>
+                    <div style={{flex:1}}>
+                      <div style={{fontSize:14,fontWeight:600,color:'var(--ink)'}}>{m.label}</div>
+                      <div style={{fontSize:11.5,color:m.noteColor,marginTop:2}}>{m.note}</div>
+                    </div>
+                    <div style={{width:18,height:18,borderRadius:'50%',flexShrink:0,
+                      border:'2px solid '+(sel?'var(--cr)':'var(--bdr)'),
+                      background:sel?'var(--cr)':'transparent',
+                      display:'flex',alignItems:'center',justifyContent:'center'}}>
+                      {sel&&<div style={{width:8,height:8,borderRadius:'50%',background:'#fff'}}/>}
+                    </div>
+                  </button>
+                );
               })}
             </div>
-            {pay.method==='upi'&&<div style={{padding:16,background:'var(--sand)',borderRadius:10,border:'1px solid '+(payErrs.upi?'#ef4444':'var(--bdr)')}}>
-              <label style={{display:'block',fontSize:11.5,fontWeight:600,color:payErrs.upi?'#ef4444':'var(--muted)',letterSpacing:.6,textTransform:'uppercase',marginBottom:8}}>UPI ID</label>
-              <input type="text" placeholder="name@okicici / number@ybl / name@paytm" value={pay.upi}
-                onChange={e=>{setPay(p=>({...p,upi:e.target.value}));setPayErrs(p=>({...p,upi:''}));}}
-                style={{width:'100%',padding:'11px 14px',border:'1.5px solid '+(payErrs.upi?'#ef4444':'var(--bdr)'),borderRadius:8,fontSize:13.5,outline:'none',background:'#fff'}}/>
-              {payErrs.upi&&<span style={{fontSize:11.5,color:'#ef4444',marginTop:5,display:'block'}}>⚠ {payErrs.upi}</span>}
-              <div style={{fontSize:11,color:'var(--muted)',marginTop:6}}>Accepted: name@okicici · number@ybl · name@paytm · name@upi · name@axl</div>
-            </div>}
-            {pay.method==='card'&&<div style={{padding:16,background:'var(--sand)',borderRadius:10,border:'1px solid var(--bdr)',display:'grid',gridTemplateColumns:'1fr 1fr',gap:14}}>
-              <div style={{gridColumn:'1/-1'}}>
-                <label style={{display:'block',fontSize:11.5,fontWeight:600,color:payErrs.card?'#ef4444':'var(--muted)',textTransform:'uppercase',letterSpacing:.6,marginBottom:6}}>Card Number</label>
-                <input type="text" placeholder="1234 5678 9012 3456" maxLength={19} value={pay.card}
-                  onChange={e=>{const v=e.target.value.replace(/\D/g,'').slice(0,16);const sp=v.match(/.{1,4}/g);setPay(p=>({...p,card:sp?sp.join(' '):''}));setPayErrs(p=>({...p,card:''}));}}
-                  style={{width:'100%',padding:'11px 14px',border:'1.5px solid '+(payErrs.card?'#ef4444':'var(--bdr)'),borderRadius:8,fontSize:14,outline:'none',background:'#fff',letterSpacing:2}}/>
-                {payErrs.card&&<span style={{fontSize:11.5,color:'#ef4444',marginTop:4,display:'block'}}>⚠ {payErrs.card}</span>}
+
+            {/* ── UPI ─────────────────────────────────────── */}
+            {pay.method==='upi'&&(
+              <div style={{padding:18,background:'var(--sand)',borderRadius:12,border:'1px solid '+(payErrs.upi?'#ef4444':'var(--bdr)')}}>
+                <div style={{fontSize:12,fontWeight:700,color:'var(--muted)',letterSpacing:.8,textTransform:'uppercase',marginBottom:12}}>Quick Pay via App</div>
+                <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:16}}>
+                  {[
+                    {name:'Google Pay',  short:'GPay',   bg:'#fff',   border:'#4285F4', emoji:'🅖'},
+                    {name:'PhonePe',     short:'PhonePe',bg:'#5f259f',border:'#5f259f', emoji:'📲', light:true},
+                    {name:'Paytm',       short:'Paytm',  bg:'#00B9F1',border:'#00B9F1', emoji:'💙', light:true},
+                    {name:'BHIM UPI',    short:'BHIM',   bg:'#ff6600',border:'#ff6600', emoji:'🇮🇳',light:true},
+                    {name:'Amazon Pay',  short:'Amazon', bg:'#fff',   border:'#ff9900', emoji:'📦'},
+                  ].map(app=>{
+                    const sel=pay.upiApp===app.name;
+                    return(
+                      <button key={app.name}
+                        onClick={()=>{setPay(p=>({...p,upiApp:app.name,upi:''}));setPayErrs(p=>({...p,upi:''}));}}
+                        style={{display:'flex',flexDirection:'column',alignItems:'center',gap:4,padding:'10px 14px',
+                          borderRadius:10,border:'2px solid '+(sel?'var(--cr)':app.border),
+                          background:sel?'var(--cr-l)':app.bg,cursor:'pointer',transition:'all .18s',minWidth:60,
+                          color:app.light&&!sel?'#fff':'inherit'}}>
+                        <span style={{fontSize:22}}>{app.emoji}</span>
+                        <span style={{fontSize:10.5,fontWeight:700,color:sel?'var(--cr)':app.light&&!sel?'#fff':'var(--char)'}}>{app.short}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <div style={{fontSize:12,fontWeight:700,color:'var(--muted)',letterSpacing:.8,textTransform:'uppercase',marginBottom:8}}>
+                  {pay.upiApp?`Enter your ${pay.upiApp} UPI ID`:'Or enter UPI ID directly'}
+                </div>
+                <div style={{position:'relative'}}>
+                  <input type="text" placeholder="yourname@okicici / 9876543210@ybl / name@paytm"
+                    value={pay.upi}
+                    onChange={e=>{setPay(p=>({...p,upi:e.target.value.toLowerCase().trim()}));setPayErrs(p=>({...p,upi:''}));}}
+                    style={{width:'100%',padding:'12px 14px 12px 14px',
+                      border:'1.5px solid '+(payErrs.upi?'#ef4444':'var(--bdr)'),
+                      borderRadius:9,fontSize:14,outline:'none',background:'#fff',
+                      fontFamily:'DM Mono,monospace',letterSpacing:.5}}/>
+                  {pay.upi&&RE_UPI.test(pay.upi.trim())&&(
+                    <span style={{position:'absolute',right:12,top:'50%',transform:'translateY(-50%)',
+                      color:'#16a34a',fontSize:16}}>✓</span>
+                  )}
+                </div>
+                {payErrs.upi&&<span style={{fontSize:11.5,color:'#ef4444',marginTop:5,display:'block'}}>⚠ {payErrs.upi}</span>}
+                <div style={{fontSize:11,color:'var(--muted)',marginTop:8,lineHeight:1.6}}>
+                  Accepted formats: <code style={{background:'#fff',padding:'1px 5px',borderRadius:4}}>name@okicici</code> &nbsp;
+                  <code style={{background:'#fff',padding:'1px 5px',borderRadius:4}}>9876543210@ybl</code> &nbsp;
+                  <code style={{background:'#fff',padding:'1px 5px',borderRadius:4}}>name@paytm</code>
+                </div>
               </div>
-              <div style={{gridColumn:'1/-1'}}>
-                <label style={{display:'block',fontSize:11.5,fontWeight:600,color:payErrs.cardName?'#ef4444':'var(--muted)',textTransform:'uppercase',letterSpacing:.6,marginBottom:6}}>Name on Card</label>
-                <input type="text" placeholder="Full name as on card" value={pay.cardName}
-                  onChange={e=>{setPay(p=>({...p,cardName:e.target.value}));setPayErrs(p=>({...p,cardName:''}));}}
-                  style={{width:'100%',padding:'11px 14px',border:'1.5px solid '+(payErrs.cardName?'#ef4444':'var(--bdr)'),borderRadius:8,fontSize:13.5,outline:'none',background:'#fff'}}/>
-                {payErrs.cardName&&<span style={{fontSize:11.5,color:'#ef4444',marginTop:4,display:'block'}}>⚠ {payErrs.cardName}</span>}
+            )}
+
+            {/* ── CARD ─────────────────────────────────────── */}
+            {pay.method==='card'&&(
+              <div style={{padding:18,background:'var(--sand)',borderRadius:12,border:'1px solid var(--bdr)'}}>
+                {/* Card preview */}
+                <div style={{background:'linear-gradient(135deg,#1a120a,#3d1010)',borderRadius:14,padding:'22px 24px',marginBottom:20,color:'#fff',fontFamily:'DM Mono,monospace',position:'relative',overflow:'hidden',minHeight:120}}>
+                  <div style={{position:'absolute',top:-20,right:-20,width:120,height:120,borderRadius:'50%',background:'rgba(201,146,42,.15)'}}/>
+                  <div style={{position:'absolute',bottom:-30,right:30,width:80,height:80,borderRadius:'50%',background:'rgba(181,18,27,.2)'}}/>
+                  <div style={{fontSize:11,letterSpacing:2,color:'rgba(255,255,255,.5)',marginBottom:16}}>POSHAK STORY CARD</div>
+                  <div style={{fontSize:17,letterSpacing:3,marginBottom:14,color:pay.card?'#fff':'rgba(255,255,255,.25)'}}>
+                    {pay.card?pay.card:'•••• •••• •••• ••••'}
+                  </div>
+                  <div style={{display:'flex',justifyContent:'space-between',fontSize:12,letterSpacing:1}}>
+                    <div><div style={{color:'rgba(255,255,255,.4)',fontSize:9,marginBottom:2}}>CARD HOLDER</div>{pay.cardName||'YOUR NAME'}</div>
+                    <div><div style={{color:'rgba(255,255,255,.4)',fontSize:9,marginBottom:2}}>EXPIRES</div>{pay.expiry||'MM/YY'}</div>
+                    <div style={{fontSize:18,color:'var(--gold)'}}>💳</div>
+                  </div>
+                </div>
+
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14}}>
+                  <div style={{gridColumn:'1/-1'}}>
+                    <label style={{display:'block',fontSize:11,fontWeight:600,color:payErrs.card?'#ef4444':'var(--muted)',textTransform:'uppercase',letterSpacing:.6,marginBottom:6}}>Card Number</label>
+                    <input type="text" placeholder="1234 5678 9012 3456" maxLength={19} value={pay.card}
+                      onChange={e=>{
+                        const v=e.target.value.replace(/\D/g,'').slice(0,16);
+                        const sp=v.match(/.{1,4}/g);
+                        setPay(p=>({...p,card:sp?sp.join(' '):''}));
+                        setPayErrs(p=>({...p,card:''}));
+                      }}
+                      style={{width:'100%',padding:'12px 14px',border:'1.5px solid '+(payErrs.card?'#ef4444':'var(--bdr)'),borderRadius:9,fontSize:15,outline:'none',background:'#fff',letterSpacing:3,fontFamily:'DM Mono,monospace'}}/>
+                    {payErrs.card&&<span style={{fontSize:11.5,color:'#ef4444',marginTop:4,display:'block'}}>⚠ {payErrs.card}</span>}
+                  </div>
+                  <div style={{gridColumn:'1/-1'}}>
+                    <label style={{display:'block',fontSize:11,fontWeight:600,color:payErrs.cardName?'#ef4444':'var(--muted)',textTransform:'uppercase',letterSpacing:.6,marginBottom:6}}>Name on Card</label>
+                    <input type="text" placeholder="Name exactly as on card" value={pay.cardName}
+                      onChange={e=>{setPay(p=>({...p,cardName:e.target.value.toUpperCase()}));setPayErrs(p=>({...p,cardName:''}));}}
+                      style={{width:'100%',padding:'12px 14px',border:'1.5px solid '+(payErrs.cardName?'#ef4444':'var(--bdr)'),borderRadius:9,fontSize:13.5,outline:'none',background:'#fff'}}/>
+                    {payErrs.cardName&&<span style={{fontSize:11.5,color:'#ef4444',marginTop:4,display:'block'}}>⚠ {payErrs.cardName}</span>}
+                  </div>
+                  <div>
+                    <label style={{display:'block',fontSize:11,fontWeight:600,color:payErrs.expiry?'#ef4444':'var(--muted)',textTransform:'uppercase',letterSpacing:.6,marginBottom:6}}>Expiry (MM/YY)</label>
+                    <input type="text" placeholder="MM/YY" maxLength={5} value={pay.expiry}
+                      onChange={e=>{
+                        let v=e.target.value.replace(/[^0-9/]/g,'');
+                        if(v.length===2&&!v.includes('/')&&pay.expiry.length===1) v=v+'/';
+                        setPay(p=>({...p,expiry:v}));setPayErrs(p=>({...p,expiry:''}));
+                      }}
+                      style={{width:'100%',padding:'12px 14px',border:'1.5px solid '+(payErrs.expiry?'#ef4444':'var(--bdr)'),borderRadius:9,fontSize:14,outline:'none',background:'#fff',fontFamily:'DM Mono,monospace'}}/>
+                    {payErrs.expiry&&<span style={{fontSize:11.5,color:'#ef4444',marginTop:4,display:'block'}}>⚠ {payErrs.expiry}</span>}
+                  </div>
+                  <div>
+                    <label style={{display:'block',fontSize:11,fontWeight:600,color:payErrs.cvv?'#ef4444':'var(--muted)',textTransform:'uppercase',letterSpacing:.6,marginBottom:6}}>CVV / CVC</label>
+                    <input type="password" placeholder="3 or 4 digits" maxLength={4} value={pay.cvv}
+                      onChange={e=>{setPay(p=>({...p,cvv:e.target.value.replace(/\D/g,'')}));setPayErrs(p=>({...p,cvv:''}));}}
+                      style={{width:'100%',padding:'12px 14px',border:'1.5px solid '+(payErrs.cvv?'#ef4444':'var(--bdr)'),borderRadius:9,fontSize:14,outline:'none',background:'#fff',fontFamily:'DM Mono,monospace'}}/>
+                    {payErrs.cvv&&<span style={{fontSize:11.5,color:'#ef4444',marginTop:4,display:'block'}}>⚠ {payErrs.cvv}</span>}
+                  </div>
+                </div>
+                <div style={{marginTop:12,display:'flex',gap:6,alignItems:'center'}}>
+                  <span style={{fontSize:11,color:'var(--muted)'}}>We accept:</span>
+                  {['VISA','MC','RUPAY','AMEX'].map(c=><span key={c} style={{fontSize:10,fontWeight:700,padding:'2px 7px',borderRadius:4,background:'var(--ink)',color:'#fff',letterSpacing:.5}}>{c}</span>)}
+                </div>
               </div>
-              <div>
-                <label style={{display:'block',fontSize:11.5,fontWeight:600,color:payErrs.expiry?'#ef4444':'var(--muted)',textTransform:'uppercase',letterSpacing:.6,marginBottom:6}}>Expiry (MM/YY)</label>
-                <input type="text" placeholder="MM/YY" maxLength={5} value={pay.expiry}
-                  onChange={e=>{
-                    let v=e.target.value.replace(/[^0-9/]/g,'');
-                    if(v.length===2&&!v.includes('/')&&pay.expiry.length===1) v=v+'/';
-                    setPay(p=>({...p,expiry:v}));setPayErrs(p=>({...p,expiry:''}));
-                  }}
-                  style={{width:'100%',padding:'11px 14px',border:'1.5px solid '+(payErrs.expiry?'#ef4444':'var(--bdr)'),borderRadius:8,fontSize:13.5,outline:'none',background:'#fff'}}/>
-                {payErrs.expiry&&<span style={{fontSize:11.5,color:'#ef4444',marginTop:4,display:'block'}}>⚠ {payErrs.expiry}</span>}
+            )}
+
+            {/* ── NET BANKING ──────────────────────────────── */}
+            {pay.method==='netbanking'&&(
+              <div style={{padding:18,background:'var(--sand)',borderRadius:12,border:'1px solid '+(payErrs.bank?'#ef4444':'var(--bdr)')}}>
+                <div style={{fontSize:12,fontWeight:700,color:'var(--muted)',letterSpacing:.8,textTransform:'uppercase',marginBottom:12}}>Select Your Bank</div>
+                <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(90px,1fr))',gap:8}}>
+                  {['SBI','HDFC','ICICI','Axis Bank','Kotak','PNB','Yes Bank','IndusInd','Bank of Baroda','Canara Bank','Other'].map(b=>(
+                    <button key={b} onClick={()=>{setPay(p=>({...p,bank:b}));setPayErrs(p=>({...p,bank:''}));}}
+                      style={{padding:'10px 8px',borderRadius:9,fontSize:12,fontWeight:pay.bank===b?700:400,
+                        border:'1.5px solid '+(pay.bank===b?'var(--cr)':'var(--bdr)'),
+                        background:pay.bank===b?'var(--cr-l)':'#fff',
+                        color:pay.bank===b?'var(--cr)':'var(--char)',transition:'all .18s',cursor:'pointer'}}>
+                      {b}
+                    </button>
+                  ))}
+                </div>
+                {payErrs.bank&&<span style={{fontSize:11.5,color:'#ef4444',marginTop:8,display:'block'}}>⚠ {payErrs.bank}</span>}
+                {pay.bank&&<div style={{marginTop:12,padding:'10px 14px',background:'#fff',borderRadius:8,fontSize:13,color:'var(--ink)',border:'1px solid var(--bdr)'}}>
+                  You will be redirected to <strong>{pay.bank}</strong> net banking portal to complete payment.
+                </div>}
               </div>
-              <div>
-                <label style={{display:'block',fontSize:11.5,fontWeight:600,color:payErrs.cvv?'#ef4444':'var(--muted)',textTransform:'uppercase',letterSpacing:.6,marginBottom:6}}>CVV</label>
-                <input type="password" placeholder="3 or 4 digits" maxLength={4} value={pay.cvv}
-                  onChange={e=>{setPay(p=>({...p,cvv:e.target.value.replace(/\D/g,'')}));setPayErrs(p=>({...p,cvv:''}));}}
-                  style={{width:'100%',padding:'11px 14px',border:'1.5px solid '+(payErrs.cvv?'#ef4444':'var(--bdr)'),borderRadius:8,fontSize:13.5,outline:'none',background:'#fff'}}/>
-                {payErrs.cvv&&<span style={{fontSize:11.5,color:'#ef4444',marginTop:4,display:'block'}}>⚠ {payErrs.cvv}</span>}
+            )}
+
+            {/* ── COD ──────────────────────────────────────── */}
+            {pay.method==='cod'&&(
+              <div style={{padding:18,background:'var(--sand)',borderRadius:12,border:'1px solid var(--bdr)'}}>
+                <div style={{display:'flex',gap:14,alignItems:'flex-start'}}>
+                  <span style={{fontSize:32}}>💵</span>
+                  <div>
+                    <div style={{fontWeight:600,fontSize:14,color:'var(--ink)',marginBottom:6}}>Cash on Delivery</div>
+                    <div style={{fontSize:13.5,color:'var(--char)',lineHeight:1.8}}>
+                      Pay in cash when your order arrives. A handling fee of <strong>₹50</strong> is added.
+                      Available on orders up to <strong>₹10,000</strong>.
+                    </div>
+                    <div style={{marginTop:10,padding:'8px 12px',background:'#fff8f0',borderRadius:7,fontSize:12.5,color:'#c97a00',border:'1px solid #f5d98a'}}>
+                      💡 Tip: Pay online to save ₹50 and get faster processing.
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>}
-            {pay.method==='netbanking'&&<div style={{padding:16,background:'var(--sand)',borderRadius:10,border:'1px solid var(--bdr)'}}>
-              <label style={{display:'block',fontSize:11.5,fontWeight:600,color:payErrs.bank?'#ef4444':'var(--muted)',textTransform:'uppercase',letterSpacing:.6,marginBottom:10}}>Select Your Bank</label>
-              <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(100px,1fr))',gap:8}}>
-                {['SBI','HDFC','ICICI','Axis','Kotak','PNB','Yes Bank','IndusInd','Other'].map(b=>(
-                  <button key={b} onClick={()=>{setPay(p=>({...p,bank:b}));setPayErrs(p=>({...p,bank:''}));}}
-                    style={{padding:10,borderRadius:8,fontSize:13,fontWeight:pay.bank===b?700:400,border:'1.5px solid '+(pay.bank===b?'var(--cr)':'var(--bdr)'),background:pay.bank===b?'var(--cr-l)':'#fff',color:pay.bank===b?'var(--cr)':'var(--char)',transition:'all .2s'}}>{b}</button>
-                ))}
-              </div>
-              {payErrs.bank&&<span style={{fontSize:11.5,color:'#ef4444',marginTop:8,display:'block'}}>⚠ {payErrs.bank}</span>}
-            </div>}
-            {pay.method==='cod'&&<div style={{padding:16,background:'var(--sand)',borderRadius:10,border:'1px solid var(--bdr)',fontSize:13.5,color:'var(--char)',lineHeight:1.8}}>Pay ₹50 extra as COD handling fee at delivery. Available for orders up to ₹10,000.</div>}
+            )}
+
           </div>
           <div className="csum">
             <h3>Order Total</h3>
             <div className="srow"><span>Items ({cart.length})</span><span>₹{sub.toLocaleString('en-IN')}</span></div>
-            <div className="srow"><span>Shipping</span><span style={{color:ship===0?'#16a34a':'inherit'}}>{ship===0?'Free':'₹'+ship}</span></div>
-            <div className="srow"><span>Festive Discount</span><span style={{color:'#16a34a'}}>-₹{fest.toLocaleString('en-IN')}</span></div>
+            <div className="srow"><span>Shipping</span><span style={{color:ship===0?'#16a34a':'inherit'}}>{ship===0?'🎁 Free':'₹'+ship}</span></div>
+            <div className="srow"><span>Festive Discount (5%)</span><span style={{color:'#16a34a'}}>-₹{fest.toLocaleString('en-IN')}</span></div>
+            {discount>0&&<div className="srow"><span>Coupon ({Math.round(discount*100)}%)</span><span style={{color:'#16a34a'}}>-₹{cpnAmt.toLocaleString('en-IN')}</span></div>}
             {pay.method==='cod'&&<div className="srow"><span>COD Fee</span><span>₹50</span></div>}
             <div className="stotal"><span>Total</span><span style={{color:'var(--cr)'}}>₹{total.toLocaleString('en-IN')}</span></div>
-            <div style={{background:'var(--sand)',borderRadius:8,padding:'9px 12px',marginTop:10,fontSize:12,color:'var(--muted)',lineHeight:1.7}}>Delivering to: {addr.name||'—'}, {addr.city||'—'}, {addr.state||'—'}</div>
+            <div style={{background:'var(--sand)',borderRadius:8,padding:'9px 12px',marginTop:10,fontSize:12,color:'var(--muted)',lineHeight:1.6}}>
+              📍 Delivering to: <strong style={{color:'var(--ink)'}}>{addr.name||'—'}</strong>, {addr.city||'—'}
+            </div>
             <button className="chk-btn" onClick={()=>{if(validatePayment())setStep('confirm');}}>Review Order →</button>
-            <div style={{textAlign:'center',marginTop:10,fontSize:11,color:'var(--muted)'}}>🔒 256-bit SSL Encrypted</div>
+            <div style={{textAlign:'center',marginTop:10,fontSize:11,color:'var(--muted)'}}>🔒 256-bit SSL Encrypted · PCI-DSS Compliant</div>
           </div>
         </div>
       </section>
@@ -1412,7 +1698,7 @@ function CartPage({cart,dispatch,navigate}){
                 <button onClick={()=>setStep('payment')} style={{background:'none',border:'1px solid var(--cr)',color:'var(--cr)',padding:'4px 12px',borderRadius:6,fontSize:12}}>Edit</button>
               </div>
               <div style={{fontSize:14,color:'var(--char)'}}>
-                {pay.method==='upi'&&('UPI: '+(pay.upi||'Not entered'))}
+                {pay.method==='upi'&&(`${pay.upiApp?pay.upiApp+' · ':''}UPI: ${pay.upi||'Not entered'}`)}
                 {pay.method==='card'&&('Card ending ****'+(pay.card.replace(/ /g,'').slice(-4)||'—'))}
                 {pay.method==='netbanking'&&('Net Banking: '+(pay.bank||'Not selected'))}
                 {pay.method==='cod'&&'Cash on Delivery (₹50 COD fee)'}
@@ -1877,6 +2163,8 @@ function App(){
     if(page.startsWith('detail:')) return <DetailPage productId={page.slice(7)}/>;
     if(page.startsWith('search:')) return <SearchPage query={page.slice(7)}/>;
     if(page==='sale')            return <SalePage/>;
+    if(page==='girls')           return <ProductListPage cat='girls'/>;
+    if(page==='boys')            return <ProductListPage cat='boys'/>;
     if(CATS[page])               return <ProductListPage cat={page}/>;
     return <HomePage/>;
   };
