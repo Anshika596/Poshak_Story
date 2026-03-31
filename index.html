@@ -1057,6 +1057,22 @@ function CartPage({cart,dispatch,navigate}){
   const [addr,setAddr]=useState({name:user?.name||'',email:user?.email||'',phone:user?.phone||'',pincode:'',address:'',city:'',state:'',type:'Home'});
   const [pay,setPay]=useState({method:'upi',upi:'',card:'',expiry:'',cvv:'',cardName:'',bank:''});
   const [payErrs,setPayErrs]=useState({});
+  const [pinLoading,setPinLoading]=useState(false);
+  const fetchPincode=async(pin)=>{
+    setPinLoading(true);
+    try{
+      const res=await fetch('https://api.zippopotam.us/in/'+pin);
+      if(res.ok){
+        const data=await res.json();
+        const place=data.places[0];
+        setAddr(prev=>({...prev,city:place['place name'],state:place['state']}));
+        setAddrErrs(prev=>({...prev,pincode:'',city:'',state:''}));
+      }else{
+        setAddrErrs(prev=>({...prev,pincode:'Pincode not found — please enter city & state manually.'}));
+      }
+    }catch(e){}
+    setPinLoading(false);
+  };
 
   const validatePayment=()=>{
     const e={};
@@ -1200,22 +1216,6 @@ function CartPage({cart,dispatch,navigate}){
   );
 
   if(step==='address'){
-  const [pinLoading,setPinLoading] = useState(false);
-  const fetchPincode = async (pin) => {
-    setPinLoading(true);
-    try {
-      const res = await fetch('https://api.zippopotam.us/in/'+pin);
-      if(res.ok){
-        const data = await res.json();
-        const place = data.places[0];
-        setAddr(prev=>({...prev,city:place['place name'],state:place['state']}));
-        setAddrErrs(prev=>({...prev,pincode:'',city:'',state:''}));
-      } else {
-        setAddrErrs(prev=>({...prev,pincode:'Pincode not found — please enter city & state manually.'}));
-      }
-    } catch(e){}
-    setPinLoading(false);
-  };
     const fields=[
       {label:'Full Name',key:'name',ph:'Your full name',type:'text',full:false},
       {label:'Email Address',key:'email',ph:'you@example.com',type:'email',full:false},

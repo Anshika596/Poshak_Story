@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lehenga Collection — Poshak Story</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="cursor"></div>
+<div class="cursor-follower"></div>
+
+<div class="announcement-bar"><span>&#10022; Free Shipping Above &#8377;2999 &nbsp;&nbsp;&#10022; Festive Edit 2025 &nbsp;&nbsp;&#10022; Flat 30% Off on Select Styles &nbsp;&nbsp;&#10022; Handcrafted with Love in India &nbsp;&nbsp;&#10022; Free Shipping Above &#8377;2999 &nbsp;&nbsp;&#10022; Flat 30% Off</span></div>
+
+<header class="topbar">
+  <a href="index.html" class="logo-area">
+    <img src="images/Red White Minimal Calligraphy Typography Fashion Store Logo.png" class="logo" alt="Poshak Story">
+    <span class="brand">Poshak <em>Story.</em></span>
+  </a>
+  <nav class="nav-links">
+    <div class="dropdown">
+      <a href="#">Women &#9662;</a>
+      <div class="dropdown-menu">
+        <a href="women-lehenga.html">&#9670;&nbsp; Lehenga</a>
+        <a href="women-saree.html">&#9670;&nbsp; Saree</a>
+      </div>
+    </div>
+    <div class="dropdown">
+      <a href="#">Men &#9662;</a>
+      <div class="dropdown-menu">
+        <a href="men-kurta.html">&#9670;&nbsp; Kurta</a>
+        <a href="men-suit.html">&#9670;&nbsp; Suit</a>
+      </div>
+    </div>
+    <div class="dropdown">
+      <a href="#">Kids &#9662;</a>
+      <div class="dropdown-menu">
+        <a href="kids-female.html">&#9670;&nbsp; Girls</a>
+        <a href="kids-male.html">&#9670;&nbsp; Boys</a>
+      </div>
+    </div>
+  </nav>
+  <div class="right-icons">
+    <div class="search-wrapper">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" placeholder="Search styles..." class="search-box">
+    </div>
+    <a href="cart.html" class="icon-btn">&#128722;<span class="cart-count"></span></a>
+  </div>
+</header>
+
+<div class="page-header">
+  <span class="eyebrow">Women's Collection</span>
+  <h1 class="page-title">Lehenga Collection</h1>
+  <div class="page-title-line"></div>
+</div>
+
+<a href="index.html" class="back-nav">← Back to Home</a>
+
+<section class="products-section">
+  <div class="filter-bar">
+    <span class="result-count">Showing 4 products</span>
+    <div class="filter-group">
+      <button class="filter-chip active">All</button>
+      <button class="filter-chip">Bridal</button>
+      <button class="filter-chip">Party</button>
+      <button class="filter-chip">Wedding</button>
+    </div>
+  </div>
+
+  <div class="product-grid">
+
+    <div class="product-card">
+      <div class="product-img-wrap">
+        <img src="images/redlehnga.png" alt="Red Bridal Lehenga">
+        <div class="product-badge">Bestseller</div>
+        <div class="product-actions">
+          <button class="action-btn" title="Wishlist" onclick="showToastMsg('Added to wishlist!')">♡</button>
+          <button class="action-btn" title="Quick View">👁</button>
+        </div>
+      </div>
+      <div class="product-info">
+        <div class="product-sub">Bridal · Silk</div>
+        <h3>Red Bridal Lehenga</h3>
+        <div class="price-row">
+          <span class="price">₹5,200</span>
+          <span class="price-old">₹7,400</span>
+          <span class="price-discount">30% OFF</span>
+        </div>
+        <button class="cart-btn" onclick="addToCart('Red Bridal Lehenga', 5200, this)">🛒 &nbsp;Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card">
+      <div class="product-img-wrap">
+        <img src="images/pinklehnga.png" alt="Pink Designer Lehenga">
+        <div class="product-badge gold">New</div>
+        <div class="product-actions">
+          <button class="action-btn" title="Wishlist">♡</button>
+          <button class="action-btn" title="Quick View">👁</button>
+        </div>
+      </div>
+      <div class="product-info">
+        <div class="product-sub">Designer · Party</div>
+        <h3>Pink Designer Lehenga</h3>
+        <div class="price-row">
+          <span class="price">₹4,800</span>
+          <span class="price-old">₹6,500</span>
+          <span class="price-discount">26% OFF</span>
+        </div>
+        <button class="cart-btn" onclick="addToCart('Pink Designer Lehenga', 4800, this)">🛒 &nbsp;Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card">
+      <div class="product-img-wrap">
+        <img src="images/bluelehnga.png" alt="Blue Party Lehenga">
+        <div class="product-actions">
+          <button class="action-btn" title="Wishlist">♡</button>
+          <button class="action-btn" title="Quick View">👁</button>
+        </div>
+      </div>
+      <div class="product-info">
+        <div class="product-sub">Party · Georgette</div>
+        <h3>Blue Party Lehenga</h3>
+        <div class="price-row">
+          <span class="price">₹4,500</span>
+          <span class="price-old">₹6,000</span>
+          <span class="price-discount">25% OFF</span>
+        </div>
+        <button class="cart-btn" onclick="addToCart('Blue Party Lehenga', 4500, this)">🛒 &nbsp;Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card">
+      <div class="product-img-wrap">
+        <img src="images/goldenlehnga.png" alt="Golden Wedding Lehenga">
+        <div class="product-badge">Premium</div>
+        <div class="product-actions">
+          <button class="action-btn" title="Wishlist">♡</button>
+          <button class="action-btn" title="Quick View">👁</button>
+        </div>
+      </div>
+      <div class="product-info">
+        <div class="product-sub">Wedding · Zari Work</div>
+        <h3>Golden Wedding Lehenga</h3>
+        <div class="price-row">
+          <span class="price">₹6,500</span>
+          <span class="price-old">₹9,200</span>
+          <span class="price-discount">29% OFF</span>
+        </div>
+        <button class="cart-btn" onclick="addToCart('Golden Wedding Lehenga', 6500, this)">🛒 &nbsp;Add to Cart</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <span class="brand">Poshak <em>Story.</em></span>
+      <p>Celebrating the beauty of Indian ethnic fashion. Handcrafted with love, delivered with care across India.</p>
+      <div class="footer-social">
+        <a href="#" class="social-btn">&#128247;</a>
+        <a href="#" class="social-btn">&#128077;</a>
+        <a href="#" class="social-btn">&#128204;</a>
+        <a href="#" class="social-btn">&#9654;</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Women's Wear</h4>
+      <a href="women-lehenga.html">Lehenga</a>
+      <a href="women-saree.html">Saree</a>
+      <a href="#">Kurtis</a>
+      <a href="#">Dupatta</a>
+    </div>
+    <div class="footer-col">
+      <h4>Men &amp; Kids</h4>
+      <a href="men-kurta.html">Men's Kurta</a>
+      <a href="men-suit.html">Men's Suit</a>
+      <a href="kids-female.html">Girls Ethnic</a>
+      <a href="kids-male.html">Boys Ethnic</a>
+    </div>
+    <div class="footer-col">
+      <h4>Help &amp; Info</h4>
+      <a href="#">Size Guide</a>
+      <a href="#">Shipping Policy</a>
+      <a href="#">Returns</a>
+      <a href="cart.html">Track Order</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>&#169; 2025 Poshak Story. All rights reserved.</span>
+    <span><a href="index.html">Home</a> &nbsp;&#183;&nbsp; <a href="cart.html">Cart</a> &nbsp;&#183;&nbsp; <a href="#">Help</a></span>
+  </div>
+</footer>
+
+<button class="scroll-top" onclick="scrollToTop()">↑</button>
+
+<script src="script.js"></script>
+<script>
+function showToastMsg(msg) { showToast(msg); }
+document.querySelectorAll('.filter-chip').forEach(chip => {
+  chip.addEventListener('click', function() {
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
