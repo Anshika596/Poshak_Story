@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Your Cart &#8212; Poshak Story</title>
+  <title>Your Cart &mdash; Poshak Story</title>
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    /* ── STEP BAR ── */
     .cart-step-bar{display:flex;align-items:center;justify-content:center;padding:28px 0 36px}
     .cstep{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:70px}
     .cstep-num{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;background:#e8ddd0;color:#8a7560;transition:all .3s}
@@ -16,7 +17,7 @@
     .cstep-label.active{font-weight:700;color:#c1121f}
     .cstep-line{flex:1;height:2px;background:#e8ddd0;margin:0 6px 20px;transition:background .3s}
     .cstep-line.done{background:#c1121f}
-    .step-panel{display:none}.step-panel.active{display:block}
+    /* ── FORM FIELDS ── */
     .addr-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
     .addr-grid .full{grid-column:1/-1}
     .form-group label{display:block;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px}
@@ -25,6 +26,7 @@
     .addr-type-row{display:flex;gap:10px;margin-top:18px}
     .addr-type-btn{padding:8px 20px;border-radius:6px;font-size:13px;border:1.5px solid #e8ddd0;background:transparent;color:var(--char);transition:all .2s;font-family:inherit}
     .addr-type-btn.sel{border-color:#c1121f;background:#fdf3f3;color:#c1121f;font-weight:600}
+    /* ── PAYMENT ── */
     .pay-option{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:10px;border:2px solid #e8ddd0;background:#fff;text-align:left;width:100%;margin-bottom:12px;transition:all .2s;font-family:inherit}
     .pay-option.sel{border-color:#c1121f;background:#fdf3f3}
     .pay-radio{width:18px;height:18px;border-radius:50%;border:2px solid #e8ddd0;flex-shrink:0;transition:all .2s}
@@ -33,23 +35,70 @@
     .pay-detail strong{display:block;font-size:14px;font-weight:600;color:var(--dark)}
     .pay-detail span{font-size:11.5px;color:var(--muted)}
     .pay-input-box{background:#fdf8f2;border:1px solid #e8ddd0;border-radius:10px;padding:16px;margin-top:4px}
-    .pay-input-box.hidden{display:none}
     .bank-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-top:10px}
     .bank-btn{padding:10px;border-radius:8px;border:1.5px solid #e8ddd0;background:#fff;font-size:13px;font-family:inherit;transition:all .2s}
     .bank-btn.sel{border-color:#c1121f;background:#fdf3f3;color:#c1121f;font-weight:600}
-    .order-success{text-align:center;padding:56px 40px;max-width:480px;margin:0 auto;background:#fff;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.12)}
+    /* ── ORDER SUCCESS ── */
+    .order-success{text-align:center;padding:56px 40px;max-width:520px;margin:0 auto;background:#fff;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.12)}
+    /* ── BUTTONS ── */
     .chk-btn-big{width:100%;background:#c1121f;color:#fff;border:none;padding:14px;border-radius:8px;font-size:13.5px;font-weight:600;letter-spacing:2px;text-transform:uppercase;transition:var(--tr);margin-top:18px;font-family:inherit}
     .chk-btn-big:hover{background:#8b0000;transform:translateY(-2px);box-shadow:0 8px 20px rgba(193,18,31,.3)}
     .back-step{background:none;border:none;color:var(--muted);font-size:13px;padding:0;margin-bottom:6px;display:inline-flex;align-items:center;gap:5px;font-family:inherit;transition:color .2s}
     .back-step:hover{color:#c1121f}
-    .mini-item{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #e8ddd0}
-    .mini-item:last-child{border-bottom:none}
-    .mini-img{width:44px;height:50px;border-radius:6px;object-fit:cover;background:#f7f0e8;flex-shrink:0}
+    /* ── CONFIRM BLOCKS ── */
     .confirm-block{background:#fff;border-radius:var(--rad);box-shadow:var(--ss);padding:22px 24px;margin-bottom:16px}
     .confirm-block-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
-    .confirm-block-hdr h4{font-family:"Cormorant Garamond",serif;font-size:18px;font-weight:600;color:var(--dark)}
+    .confirm-block-hdr h4{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--dark)}
     .edit-link{background:none;border:1px solid #c1121f;color:#c1121f;padding:4px 12px;border-radius:6px;font-size:12px;font-family:inherit;transition:all .2s}
     .edit-link:hover{background:#c1121f;color:#fff}
+    .mini-item{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #e8ddd0}
+    .mini-item:last-child{border-bottom:none}
+    /* ── TRACK ORDER / ORDERS LIST ── */
+    .order-card{background:#fff;border-radius:var(--rad);box-shadow:var(--ss);padding:22px 24px;margin-bottom:18px;border-left:4px solid #c1121f}
+    .order-card.cancelled{border-left-color:#e8ddd0;opacity:.8}
+    .order-card.returned{border-left-color:#c9a84c}
+    .order-status-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+    .badge-placed{background:#e8f5e9;color:#218838}
+    .badge-shipped{background:#e3f2fd;color:#1565c0}
+    .badge-delivered{background:#f3e5f5;color:#6a1b9a}
+    .badge-cancelled{background:#fce4e4;color:#c1121f}
+    .badge-returned{background:#fff8e1;color:#f57f17}
+    .badge-refunded{background:#e8f5e9;color:#218838}
+    /* ── RETURNS & REFUNDS PAGE ── */
+    .rr-section{background:#fff;border-radius:var(--rad);box-shadow:var(--ss);padding:28px;margin-bottom:20px}
+    .rr-section h3{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--dark);margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--bdr)}
+    .rr-step{display:flex;gap:14px;align-items:flex-start;margin-bottom:16px}
+    .rr-step-num{width:30px;height:30px;background:#c1121f;color:#fff;border-radius:50%;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+    .rr-step-body strong{display:block;font-size:14px;font-weight:600;color:var(--dark);margin-bottom:3px}
+    .rr-step-body p{font-size:13px;color:var(--muted);line-height:1.7}
+    /* ── MODAL ── */
+    .ps-modal-overlay{display:none;position:fixed;inset:0;background:rgba(10,5,0,.7);backdrop-filter:blur(4px);z-index:99999;align-items:center;justify-content:center}
+    .ps-modal-overlay.open{display:flex;animation:mIn .2s ease}
+    @keyframes mIn{from{opacity:0}to{opacity:1}}
+    .ps-modal{background:#fff;border-radius:18px;padding:36px 32px;max-width:480px;width:90%;box-shadow:0 30px 80px rgba(0,0,0,.25);text-align:center}
+    .ps-modal h3{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--dark);margin-bottom:12px}
+    .ps-modal p{color:var(--muted);font-size:14px;line-height:1.8;margin-bottom:22px}
+    .ps-modal-btns{display:flex;gap:10px}
+    .ps-modal-btns button{flex:1;padding:11px;border-radius:8px;font-size:13px;font-weight:600;font-family:inherit;transition:all .2s}
+    .btn-danger{background:#c1121f;color:#fff;border:none}
+    .btn-danger:hover{background:#8b0000}
+    .btn-ghost{background:none;border:1.5px solid #e8ddd0;color:var(--char)}
+    .btn-ghost:hover{border-color:#c1121f;color:#c1121f}
+    .reason-select{width:100%;padding:10px 14px;border:1.5px solid #e8ddd0;border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:#fdf8f2;color:var(--dark);margin-bottom:14px}
+    .reason-select:focus{border-color:#c1121f}
+    /* ── ACCOUNT DELETE BTN ── */
+    .delete-account-btn{background:none;border:1.5px solid #c1121f;color:#c1121f;padding:10px 22px;border-radius:8px;font-size:13px;font-weight:600;font-family:inherit;transition:all .2s;display:inline-flex;align-items:center;gap:8px}
+    .delete-account-btn:hover{background:#c1121f;color:#fff}
+    /* ── SUBSCRIBE FORM ── */
+    .sub-form{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+    .sub-form input{flex:1;padding:10px 14px;border:1.5px solid rgba(255,255,255,.2);border-radius:8px;background:rgba(255,255,255,.07);color:#fff;font-size:13px;font-family:inherit;outline:none;min-width:180px}
+    .sub-form input::placeholder{color:rgba(255,255,255,.4)}
+    .sub-form input:focus{border-color:var(--gold)}
+    .sub-form button{padding:10px 18px;border-radius:8px;background:#c1121f;color:#fff;border:none;font-size:13px;font-weight:600;font-family:inherit;white-space:nowrap;transition:all .2s}
+    .sub-form button:hover{background:#8b0000}
+    /* ── SHOP ADDRESS IN FOOTER ── */
+    .footer-address{font-size:12.5px;color:rgba(255,255,255,.5);line-height:1.9;margin-top:8px}
+    .footer-address strong{color:rgba(255,255,255,.8);display:block;margin-bottom:2px}
   </style>
 </head>
 <body>
@@ -97,19 +146,201 @@
 
 <div class="page-header">
   <span class="eyebrow">Shopping</span>
-  <h1 class="page-title">Your Cart</h1>
+  <h1 class="page-title" id="pageTitle">Your Cart</h1>
   <div class="page-title-line"></div>
 </div>
+
+<!-- Tab navigation for cart pages -->
+<div style="background:#fff;border-bottom:1px solid var(--bdr);padding:0 58px;display:flex;gap:0">
+  <button onclick="showView('cart')" id="tab-cart" class="cart-tab active-tab">&#128722; Cart</button>
+  <button onclick="showView('orders')" id="tab-orders" class="cart-tab">&#128230; My Orders</button>
+  <button onclick="showView('returns')" id="tab-returns" class="cart-tab">&#8617; Returns &amp; Refunds</button>
+  <button onclick="showView('account')" id="tab-account" class="cart-tab">&#128100; Account</button>
+</div>
+
+<style>
+.cart-tab{background:none;border:none;border-bottom:3px solid transparent;padding:14px 22px;font-size:13px;font-weight:500;color:var(--muted);font-family:inherit;transition:all .2s;letter-spacing:.3px}
+.cart-tab:hover{color:#c1121f}
+.cart-tab.active-tab{color:#c1121f;border-bottom-color:#c1121f;font-weight:600}
+</style>
+
 <a href="index.html" class="back-nav">&#8592; Continue Shopping</a>
 
-<section class="cart-section" id="cartSection"></section>
+<!-- CART VIEW -->
+<section class="cart-section" id="view-cart"></section>
+
+<!-- ORDERS VIEW -->
+<section class="cart-section" id="view-orders" style="display:none"></section>
+
+<!-- RETURNS & REFUNDS VIEW -->
+<section class="cart-section" id="view-returns" style="display:none">
+  <div class="rr-section">
+    <h3>&#8617; Returns &amp; Refund Policy</h3>
+    <p style="color:var(--muted);font-size:13.5px;line-height:1.9;margin-bottom:22px">
+      At Poshak Story, we want you to be completely happy with your purchase. If for any reason you are not satisfied, we offer hassle-free returns within <strong>7 days</strong> of delivery.
+    </p>
+    <div class="rr-step">
+      <div class="rr-step-num">1</div>
+      <div class="rr-step-body">
+        <strong>Initiate Return</strong>
+        <p>Go to <em>My Orders</em>, find your order, and click <strong>Request Return</strong>. Select the reason for return. Returns must be initiated within 7 days of delivery.</p>
+      </div>
+    </div>
+    <div class="rr-step">
+      <div class="rr-step-num">2</div>
+      <div class="rr-step-body">
+        <strong>Pack the Item</strong>
+        <p>Pack the item securely in its original packaging with all tags intact. Items must be unworn, unwashed, and in original condition with all accessories.</p>
+      </div>
+    </div>
+    <div class="rr-step">
+      <div class="rr-step-num">3</div>
+      <div class="rr-step-body">
+        <strong>Schedule Pickup or Drop-off</strong>
+        <p>Our courier partner will schedule a free pickup from your address. Alternatively, you can drop off the item at our store: <strong>Shop 7, Sector 17, Chandigarh</strong>.</p>
+      </div>
+    </div>
+    <div class="rr-step">
+      <div class="rr-step-num">4</div>
+      <div class="rr-step-body">
+        <strong>Refund Processed</strong>
+        <p>Once we receive and inspect the item, a full refund will be credited to your original payment method within <strong>5–7 business days</strong>. COD orders are refunded to your bank account.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="rr-section">
+    <h3>&#10060; Non-Returnable Items</h3>
+    <ul style="color:var(--muted);font-size:13.5px;line-height:2;padding-left:18px">
+      <li>Items worn, washed, or damaged by the customer</li>
+      <li>Items without original tags or packaging</li>
+      <li>Customised or altered garments</li>
+      <li>Items purchased during final clearance sales</li>
+    </ul>
+  </div>
+
+  <div class="rr-section">
+    <h3>&#128222; Contact Us for Returns</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;font-size:13.5px;color:var(--char);line-height:2">
+      <div>
+        <div style="font-weight:600;color:var(--dark);margin-bottom:4px">&#128205; Store Address</div>
+        Shop 7, Sector 17<br>Chandigarh, Punjab<br>India
+      </div>
+      <div>
+        <div style="font-weight:600;color:var(--dark);margin-bottom:4px">&#128337; Store Hours</div>
+        Mon &ndash; Sat: 10 AM &ndash; 8 PM<br>Sunday: 11 AM &ndash; 6 PM
+      </div>
+      <div>
+        <div style="font-weight:600;color:var(--dark);margin-bottom:4px">&#128222; Phone</div>
+        +91 98765 43210
+      </div>
+      <div>
+        <div style="font-weight:600;color:var(--dark);margin-bottom:4px">&#128140; Email</div>
+        <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="780a1d0c0d0a160b3808170b1019130b0c170a01561116">[email&#160;protected]</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="rr-section" style="background:linear-gradient(135deg,#1a1008,#3d1515);color:#fff">
+    <h3 style="color:var(--gold-l);border-bottom-color:rgba(255,255,255,.12)">&#128073; Have an Order to Return?</h3>
+    <p style="color:rgba(255,255,255,.65);font-size:13.5px;margin-bottom:18px">Switch to the <em>My Orders</em> tab and click <strong style="color:var(--gold-l)">Request Return</strong> on your eligible order.</p>
+    <button onclick="showView('orders')" style="background:#c1121f;color:#fff;border:none;padding:11px 26px;border-radius:8px;font-size:13px;font-weight:600;font-family:inherit;transition:all .2s" onmouseover="this.style.background='#8b0000'" onmouseout="this.style.background='#c1121f'">Go to My Orders &#8594;</button>
+  </div>
+</section>
+
+<!-- ACCOUNT VIEW -->
+<section class="cart-section" id="view-account" style="display:none">
+  <div style="max-width:540px;margin:0 auto">
+    <div class="rr-section">
+      <h3>&#128100; Account Settings</h3>
+      <div id="acct-info" style="font-size:14px;color:var(--char);line-height:2;margin-bottom:22px">Loading...</div>
+      <div style="border-top:1px solid var(--bdr);padding-top:22px;margin-top:6px">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:#c1121f;margin-bottom:10px">&#9888;&#65039; Danger Zone</div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.8">Deleting your account permanently removes all your data including cart, wishlist, and order history. This action cannot be undone.</p>
+        <button class="delete-account-btn" onclick="showDeleteModal()">&#128465; Delete My Account</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CANCEL ORDER MODAL -->
+<div class="ps-modal-overlay" id="cancelModal">
+  <div class="ps-modal">
+    <div style="font-size:42px;margin-bottom:12px">&#128683;</div>
+    <h3>Cancel Order?</h3>
+    <p>Please tell us why you want to cancel. Your refund will be processed within 5&ndash;7 business days.</p>
+    <select class="reason-select" id="cancelReason">
+      <option value="">Select reason...</option>
+      <option>Changed my mind</option>
+      <option>Found a better price elsewhere</option>
+      <option>Ordered by mistake</option>
+      <option>Delivery time too long</option>
+      <option>Payment issue</option>
+      <option>Other reason</option>
+    </select>
+    <div class="ps-modal-btns">
+      <button class="btn-ghost" onclick="closeModal('cancelModal')">Keep Order</button>
+      <button class="btn-danger" onclick="confirmCancel()">Yes, Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- RETURN REQUEST MODAL -->
+<div class="ps-modal-overlay" id="returnModal">
+  <div class="ps-modal">
+    <div style="font-size:42px;margin-bottom:12px">&#8617;</div>
+    <h3>Request Return</h3>
+    <p>Items must be unused with all tags intact. Returns are accepted within 7 days of delivery.</p>
+    <select class="reason-select" id="returnReason">
+      <option value="">Select reason...</option>
+      <option>Wrong size</option>
+      <option>Defective / damaged item</option>
+      <option>Not as described</option>
+      <option>Wrong item delivered</option>
+      <option>Changed my mind</option>
+      <option>Quality not as expected</option>
+    </select>
+    <div class="ps-modal-btns">
+      <button class="btn-ghost" onclick="closeModal('returnModal')">Cancel</button>
+      <button class="btn-danger" onclick="confirmReturn()">Submit Return Request</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE ACCOUNT MODAL -->
+<div class="ps-modal-overlay" id="deleteModal">
+  <div class="ps-modal">
+    <div style="font-size:42px;margin-bottom:12px">&#128465;</div>
+    <h3>Delete Account?</h3>
+    <p>This will permanently delete your account, cart, wishlist, and order history. <strong>This cannot be undone.</strong></p>
+    <div class="ps-modal-btns">
+      <button class="btn-ghost" onclick="closeModal('deleteModal')">Keep Account</button>
+      <button class="btn-danger" onclick="performDeleteAccount()">Yes, Delete</button>
+    </div>
+  </div>
+</div>
 
 <footer>
   <div class="footer-grid">
     <div class="footer-brand">
       <span class="brand">Poshak <em>Story.</em></span>
       <p>Celebrating the beauty of Indian ethnic fashion. Handcrafted with love, delivered with care across India.</p>
-      <div class="footer-social">
+      <!-- SHOP ADDRESS -->
+      <div class="footer-address">
+        <strong>&#128205; Visit Our Store</strong>
+        Shop 7, Sector 17<br>
+        Chandigarh, Punjab<br>
+        Mon &ndash; Sat: 10 AM &ndash; 8 PM &nbsp;|&nbsp; Sun: 11 AM &ndash; 6 PM
+      </div>
+      <!-- SUBSCRIBE -->
+      <div style="margin-top:20px">
+        <div style="font-size:12px;color:rgba(255,255,255,.5);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">&#127381; Subscribe for Exclusive Offers</div>
+        <div class="sub-form">
+          <input type="email" id="subEmail" placeholder="your@email.com">
+          <button onclick="doSubscribe()">Subscribe</button>
+        </div>
+      </div>
+      <div class="footer-social" style="margin-top:18px">
         <a href="#" class="social-btn">&#128247;</a>
         <a href="#" class="social-btn">&#128077;</a>
         <a href="#" class="social-btn">&#128204;</a>
@@ -134,20 +365,25 @@
       <h4>Help &amp; Info</h4>
       <a href="#">Size Guide</a>
       <a href="#">Shipping Policy</a>
-      <a href="#">Returns</a>
-      <a href="cart.html">Track Order</a>
+      <a href="#" onclick="showView('returns');return false">Returns &amp; Refunds</a>
+      <a href="#" onclick="showView('orders');return false">Track Order</a>
+      <a href="#" onclick="showView('account');return false">My Account</a>
     </div>
   </div>
   <div class="footer-bottom">
-    <span>&#169; 2025 Poshak Story. All rights reserved.</span>
+    <span>&#169; 2025 Poshak Story. All rights reserved. &nbsp;|&nbsp; Shop 7, Sector 17, Chandigarh</span>
     <span><a href="index.html">Home</a> &nbsp;&#183;&nbsp; <a href="cart.html">Cart</a> &nbsp;&#183;&nbsp; <a href="#">Help</a></span>
   </div>
 </footer>
 
 <div id="toast" class="toast"><span class="toast-icon">&#128717;</span><div><strong id="toast-msg"></strong></div></div>
 <button class="scroll-top" onclick="scrollToTop()">&#8593;</button>
-<script src="script.js"></script>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="script.js"></script>
 <script>
+/* ══════════════════════════════════════════════════════════
+   CART STATE
+   ══════════════════════════════════════════════════════════ */
 var cartState = {
   step: 'cart',
   addr: { name:'', phone:'', address:'', pincode:'', city:'', state:'', type:'Home' },
@@ -156,17 +392,40 @@ var cartState = {
   couponLabel: ''
 };
 
-function calcTotals(cart) {
-  var sub   = cart.reduce(function(s,i){ return s + Number(i.price); }, 0);
-  var ship  = sub >= 2999 ? 0 : 199;
-  var fest  = Math.round(sub * 0.05);
-  var cpn   = Math.round(sub * cartState.discount);
-  var cod   = cartState.pay.method === 'cod' ? 50 : 0;
-  return { sub: sub, ship: ship, fest: fest, cpn: cpn, cod: cod,
-           total: sub + ship - fest - cpn + cod };
+var activeCancelOrderId = null;
+var activeReturnOrderId = null;
+
+/* ══════════════════════════════════════════════════════════
+   VIEW SWITCHING
+   ══════════════════════════════════════════════════════════ */
+function showView(view) {
+  ['cart','orders','returns','account'].forEach(function(v) {
+    var el = document.getElementById('view-' + v);
+    var tab = document.getElementById('tab-' + v);
+    if (el) el.style.display = v === view ? 'block' : 'none';
+    if (tab) tab.classList.toggle('active-tab', v === view);
+  });
+  var titles = { cart: 'Your Cart', orders: 'My Orders', returns: 'Returns & Refunds', account: 'Account' };
+  document.getElementById('pageTitle').textContent = titles[view] || 'Cart';
+  if (view === 'cart')    renderCart();
+  if (view === 'orders')  renderOrders();
+  if (view === 'account') renderAccount();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+/* ══════════════════════════════════════════════════════════
+   UTILITIES
+   ══════════════════════════════════════════════════════════ */
+function calcTotals(cart) {
+  var sub  = cart.reduce(function(s,i){ return s + Number(i.price); }, 0);
+  var ship = sub >= 2999 ? 0 : 199;
+  var fest = Math.round(sub * 0.05);
+  var cpn  = Math.round(sub * cartState.discount);
+  var cod  = cartState.pay.method === 'cod' ? 50 : 0;
+  return { sub:sub, ship:ship, fest:fest, cpn:cpn, cod:cod, total:sub+ship-fest-cpn+cod };
+}
 function fmtINR(n) { return '&#8377;' + Number(n).toLocaleString('en-IN'); }
+function fmtDate(iso) { return new Date(iso).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }); }
 
 function stepBar(cur) {
   var steps = ['Cart','Address','Payment','Confirm'];
@@ -175,67 +434,77 @@ function stepBar(cur) {
   steps.forEach(function(s, i) {
     var cls  = i < idx ? 'done' : (i === idx ? 'active' : '');
     var lcls = i === idx ? 'active' : '';
-    var lbl  = i < idx ? '&#10003;' : (i + 1);
-    html += '<div class="cstep">';
-    html += '<div class="cstep-num ' + cls + '">' + lbl + '</div>';
-    html += '<div class="cstep-label ' + lcls + '">' + s + '</div>';
-    html += '</div>';
-    if (i < steps.length - 1) {
-      html += '<div class="cstep-line ' + (i < idx ? 'done' : '') + '"></div>';
-    }
+    var lbl  = i < idx ? '&#10003;' : (i+1);
+    html += '<div class="cstep"><div class="cstep-num ' + cls + '">' + lbl + '</div><div class="cstep-label ' + lcls + '">' + s + '</div></div>';
+    if (i < steps.length-1) html += '<div class="cstep-line ' + (i<idx?'done':'') + '"></div>';
   });
   return html + '</div>';
 }
 
-function summaryBox(cart, showCod) {
+function summaryBox(cart) {
   var t = calcTotals(cart);
-  var html = '<div class="cart-summary">';
-  html += '<h3>Order Summary</h3>';
-  html += '<div class="summary-row"><span>Subtotal (' + cart.length + ' item' + (cart.length>1?'s':'') + ')</span><span>' + fmtINR(t.sub) + '</span></div>';
-  html += '<div class="summary-row"><span>Shipping</span><span style="color:' + (t.ship===0?'#218838':'#2d2416') + '">' + (t.ship===0?'&#127881; Free':fmtINR(t.ship)) + '</span></div>';
-  html += '<div class="summary-row"><span>Festive Discount (5%)</span><span style="color:#218838">&#8722;' + fmtINR(t.fest) + '</span></div>';
-  if (cartState.discount > 0) html += '<div class="summary-row"><span>Coupon (' + Math.round(cartState.discount*100) + '%)</span><span style="color:#218838">&#8722;' + fmtINR(t.cpn) + '</span></div>';
-  if (showCod && cartState.pay.method === 'cod') html += '<div class="summary-row"><span>COD Fee</span><span>' + fmtINR(50) + '</span></div>';
-  html += '<div class="summary-row total"><span>Total</span><span style="color:#c1121f">' + fmtINR(t.total) + '</span></div>';
-  if (t.ship > 0) html += '<div style="background:#fdf8f2;border-radius:8px;padding:10px 14px;font-size:12px;color:#8a7560;text-align:center;margin-top:10px;">Add ' + fmtINR(2999 - t.sub) + ' more for free shipping!</div>';
-  html += '</div>';
-  return html;
+  return '<div class="cart-summary"><h3>Order Summary</h3>'
+    + '<div class="summary-row"><span>Subtotal (' + cart.length + ' item' + (cart.length>1?'s':'') + ')</span><span>' + fmtINR(t.sub) + '</span></div>'
+    + '<div class="summary-row"><span>Shipping</span><span style="color:' + (t.ship===0?'#218838':'#2d2416') + '">' + (t.ship===0?'&#127881; Free':fmtINR(t.ship)) + '</span></div>'
+    + '<div class="summary-row"><span>Festive Discount (5%)</span><span style="color:#218838">&#8722;' + fmtINR(t.fest) + '</span></div>'
+    + (cartState.discount>0?'<div class="summary-row"><span>Coupon (' + Math.round(cartState.discount*100) + '%)</span><span style="color:#218838">&#8722;' + fmtINR(t.cpn) + '</span></div>':'')
+    + (cartState.pay.method==='cod'?'<div class="summary-row"><span>COD Fee</span><span>&#8377;50</span></div>':'')
+    + '<div class="summary-row total"><span>Total</span><span style="color:#c1121f">' + fmtINR(t.total) + '</span></div>'
+    + (t.ship>0?'<div style="background:#fdf8f2;border-radius:8px;padding:10px 14px;font-size:12px;color:#8a7560;text-align:center;margin-top:10px">Add ' + fmtINR(2999-t.sub) + ' more for free shipping!</div>':'')
+    + '</div>';
+}
+
+function mkField(label, id, val, ph, type, cls) {
+  return '<div class="form-group ' + cls + '"><label for="' + id + '">' + label + '</label>'
+    + '<input type="' + (type||'text') + '" id="' + id + '" value="' + val.replace(/"/g,'&quot;') + '" placeholder="' + ph + '"></div>';
 }
 
 function miniCartItems(cart) {
   return cart.map(function(item) {
-    return '<div class="mini-item"><div class="mini-img" style="background:#f7f0e8;"></div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--dark)">' + item.name + '</div><div style="font-size:12px;color:var(--muted)">Size: ' + (item.size || 'M') + '</div></div><div style="font-size:13px;font-weight:600;color:#c1121f">' + fmtINR(item.price) + '</div></div>';
+    return '<div class="mini-item"><div style="width:44px;height:50px;border-radius:6px;background:#f7f0e8;flex-shrink:0"></div>'
+      + '<div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--dark)">' + item.name + '</div>'
+      + '<div style="font-size:12px;color:var(--muted)">Size: ' + (item.size||'M') + '</div></div>'
+      + '<div style="font-size:13px;font-weight:600;color:#c1121f">' + fmtINR(item.price) + '</div></div>';
   }).join('');
 }
 
+/* ══════════════════════════════════════════════════════════
+   CART RENDER
+   ══════════════════════════════════════════════════════════ */
 function renderCart() {
   var cart = getCart();
-  var sec  = document.getElementById('cartSection');
-
+  var sec  = document.getElementById('view-cart');
   if (cart.length === 0 && cartState.step === 'cart') {
-    sec.innerHTML = '<div class="empty-cart"><span class="empty-icon">&#128717;</span><h3>Your cart is empty</h3><p>Explore our beautiful collections and find something you love!</p><a href="index.html" style="display:inline-block;background:#c1121f;color:white;padding:14px 36px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;letter-spacing:2px;text-transform:uppercase;">Explore Collections</a></div>';
+    sec.innerHTML = '<div class="empty-cart">'
+      + '<span class="empty-icon">&#128717;</span>'
+      + '<h3>Your cart is empty</h3>'
+      + '<p>Explore our beautiful collections and find something you love!</p>'
+      + '<a href="index.html" style="display:inline-block;background:#c1121f;color:white;padding:14px 36px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;letter-spacing:2px;text-transform:uppercase">Explore Collections</a>'
+      + '</div>';
     return;
   }
-
-  if (cartState.step === 'cart')    { renderStepCart(cart, sec); }
-  else if (cartState.step === 'address')  { renderStepAddress(cart, sec); }
-  else if (cartState.step === 'payment')  { renderStepPayment(cart, sec); }
-  else if (cartState.step === 'confirm')  { renderStepConfirm(cart, sec); }
+  if      (cartState.step === 'cart')    renderStepCart(cart, sec);
+  else if (cartState.step === 'address') renderStepAddress(cart, sec);
+  else if (cartState.step === 'payment') renderStepPayment(cart, sec);
+  else if (cartState.step === 'confirm') renderStepConfirm(cart, sec);
 }
 
 function renderStepCart(cart, sec) {
-  var t = calcTotals(cart);
+  var t    = calcTotals(cart);
   var rows = cart.map(function(item, idx) {
-    return '<tr><td style="font-size:13px;color:var(--muted)">' + (idx+1) + '</td><td class="td-name">' + item.name + '</td><td class="td-price">' + fmtINR(item.price) + '</td><td><button class="remove-btn" onclick="removeItem(' + idx + ')">&#10005;</button></td></tr>';
+    return '<tr><td style="font-size:13px;color:var(--muted)">' + (idx+1) + '</td>'
+      + '<td class="td-name">' + item.name + '</td>'
+      + '<td class="td-price">' + fmtINR(item.price) + '</td>'
+      + '<td><button class="remove-btn" onclick="removeItem(' + idx + ')">&#10005;</button></td></tr>';
   }).join('');
 
-  var couponHtml = '<div style="margin-top:16px;background:#fff;border-radius:var(--rad);padding:20px;box-shadow:var(--ss)">'
-    + '<div style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;margin-bottom:12px;color:var(--dark)">Apply Coupon</div>'
+  var coupon = '<div style="margin-top:16px;background:#fff;border-radius:var(--rad);padding:20px;box-shadow:var(--ss)">'
+    + '<div style="font-family:\'Cormorant Garamond\',serif;font-size:17px;font-weight:600;margin-bottom:12px;color:var(--dark)">Apply Coupon</div>'
     + '<div style="display:flex;gap:8px">'
     + '<input type="text" id="cpnInput" placeholder="e.g. FESTIVE30" style="flex:1;padding:10px 14px;border:1.5px solid #e8ddd0;border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:#fdf8f2">'
     + '<button onclick="applyCoupon()" style="background:#c1121f;color:#fff;border:none;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:600;font-family:inherit">Apply</button>'
     + '</div>'
-    + (cartState.couponLabel ? '<div style="font-size:13px;margin-top:7px;color:' + (cartState.discount?'#218838':'#c1121f') + ';font-weight:500">' + cartState.couponLabel + '</div>' : '')
+    + (cartState.couponLabel?'<div style="font-size:13px;margin-top:7px;color:' + (cartState.discount?'#218838':'#c1121f') + ';font-weight:500">' + cartState.couponLabel + '</div>':'')
     + '<div style="font-size:11.5px;color:var(--muted);margin-top:5px">Try: FESTIVE30 &middot; SAVE20 &middot; POSHAK10</div>'
     + '</div>';
 
@@ -243,9 +512,9 @@ function renderStepCart(cart, sec) {
     + '<div class="summary-row"><span>Subtotal (' + cart.length + ' item' + (cart.length>1?'s':'') + ')</span><span>' + fmtINR(t.sub) + '</span></div>'
     + '<div class="summary-row"><span>Shipping</span><span style="color:' + (t.ship===0?'#218838':'#2d2416') + '">' + (t.ship===0?'&#127881; Free':fmtINR(t.ship)) + '</span></div>'
     + '<div class="summary-row"><span>Festive Discount (5%)</span><span style="color:#218838">&#8722;' + fmtINR(t.fest) + '</span></div>'
-    + (cartState.discount > 0 ? '<div class="summary-row"><span>Coupon (' + Math.round(cartState.discount*100) + '%)</span><span style="color:#218838">&#8722;' + fmtINR(t.cpn) + '</span></div>' : '')
+    + (cartState.discount>0?'<div class="summary-row"><span>Coupon (' + Math.round(cartState.discount*100) + '%)</span><span style="color:#218838">&#8722;' + fmtINR(t.cpn) + '</span></div>':'')
     + '<div class="summary-row total"><span>Total</span><span style="color:#c1121f">' + fmtINR(t.total) + '</span></div>'
-    + (t.ship > 0 ? '<div style="background:#fdf8f2;border-radius:8px;padding:10px 14px;font-size:12px;color:#8a7560;text-align:center;margin-top:10px;">Add ' + fmtINR(2999 - t.sub) + ' more for free shipping!</div>' : '')
+    + (t.ship>0?'<div style="background:#fdf8f2;border-radius:8px;padding:10px 14px;font-size:12px;color:#8a7560;text-align:center;margin-top:10px">Add ' + fmtINR(2999-t.sub) + ' more for free shipping!</div>':'')
     + '<button class="chk-btn-big" onclick="goToStep(\'address\')">Proceed to Address &#8594;</button>'
     + '<div style="text-align:center;margin-top:14px;font-size:20px">&#128274; &#128737;&#65039; &#9989;</div>'
     + '<div style="text-align:center;font-size:11px;color:var(--muted);margin-top:4px">Secure and Encrypted Checkout</div>'
@@ -254,17 +523,16 @@ function renderStepCart(cart, sec) {
   sec.innerHTML = stepBar('cart')
     + '<div class="cart-layout">'
     + '<div><div class="cart-table-wrap"><table><thead><tr><th>#</th><th>Product</th><th>Price</th><th></th></tr></thead><tbody>' + rows + '</tbody></table>'
-    + '<div style="padding:14px 18px;border-top:1px solid #e8ddd0"><button onclick="clearCart()" style="background:none;border:1px solid #e8ddd0;color:#8a7560;padding:8px 18px;border-radius:6px;font-size:12px;font-family:inherit" onmouseover="this.style.borderColor='#c1121f';this.style.color='#c1121f'" onmouseout="this.style.borderColor='#e8ddd0';this.style.color='#8a7560'">&#128465; Clear Cart</button></div>'
-    + '</div>' + couponHtml + '</div>'
+    + '<div style="padding:14px 18px;border-top:1px solid #e8ddd0"><button onclick="clearCart()" style="background:none;border:1px solid #e8ddd0;color:#8a7560;padding:8px 18px;border-radius:6px;font-size:12px;font-family:inherit" onmouseover="this.style.borderColor=\'#c1121f\';this.style.color=\'#c1121f\'" onmouseout="this.style.borderColor=\'#e8ddd0\';this.style.color=\'#8a7560\'">&#128465; Clear Cart</button></div>'
+    + '</div>' + coupon + '</div>'
     + summary + '</div>';
 }
 
 function renderStepAddress(cart, sec) {
   var a = cartState.addr;
   var t = calcTotals(cart);
-
   var form = '<div style="background:#fff;border-radius:var(--rad);padding:28px;box-shadow:var(--ss)">'
-    + '<h3 style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--dark);margin-bottom:22px">Shipping Address</h3>'
+    + '<h3 style="font-family:\'Cormorant Garamond\',serif;font-size:20px;font-weight:600;color:var(--dark);margin-bottom:22px">Shipping Address</h3>'
     + '<div class="addr-grid">'
     + mkField('Full Name','addrName',a.name,'Your full name','','')
     + mkField('Phone','addrPhone',a.phone,'10-digit mobile','','')
@@ -290,46 +558,36 @@ function renderStepAddress(cart, sec) {
     + '<div class="cart-layout">' + form + sidebar + '</div>';
 }
 
-function mkField(label, id, val, ph, type, cls) {
-  return '<div class="form-group ' + cls + '">'
-    + '<label for="' + id + '">' + label + '</label>'
-    + '<input type="' + (type||'text') + '" id="' + id + '" value="' + val.replace(/"/g,'&quot;') + '" placeholder="' + ph + '">'
-    + '</div>';
-}
-
 function renderStepPayment(cart, sec) {
   var p = cartState.pay;
   var t = calcTotals(cart);
-
   var methods = [
-    { id:'upi',        label:'UPI / Google Pay / PhonePe', note:'Instant confirmation, 0% fees', noteColor:'#218838' },
-    { id:'card',       label:'Credit / Debit Card',        note:'Visa, Mastercard, Rupay, Amex', noteColor:'var(--muted)' },
-    { id:'netbanking', label:'Net Banking',                 note:'All major banks supported',     noteColor:'var(--muted)' },
-    { id:'cod',        label:'Cash on Delivery',            note:'Extra &#8377;50 COD fee applies', noteColor:'var(--muted)' }
+    { id:'upi',        label:'UPI / Google Pay / PhonePe', note:'Instant confirmation, 0% fees', nc:'#218838' },
+    { id:'card',       label:'Credit / Debit Card',        note:'Visa, Mastercard, Rupay, Amex',  nc:'var(--muted)' },
+    { id:'netbanking', label:'Net Banking',                 note:'All major banks supported',      nc:'var(--muted)' },
+    { id:'cod',        label:'Cash on Delivery',            note:'Extra &#8377;50 COD fee',        nc:'var(--muted)' }
   ];
-
-  var optionsHtml = methods.map(function(m) {
-    var sel = p.method === m.id;
-    return '<button class="pay-option ' + (sel?'sel':'') + '" onclick="setPayMethod(\'' + m.id + '\')">'
+  var opts = methods.map(function(m) {
+    return '<button class="pay-option ' + (p.method===m.id?'sel':'') + '" onclick="setPayMethod(\'' + m.id + '\')">'
       + '<div class="pay-radio"></div>'
-      + '<div class="pay-detail"><strong>' + m.label + '</strong><span style="color:' + m.noteColor + '">' + m.note + '</span></div>'
+      + '<div class="pay-detail"><strong>' + m.label + '</strong><span style="color:' + m.nc + '">' + m.note + '</span></div>'
       + '</button>';
   }).join('');
 
   var inputArea = '';
-  if (p.method === 'upi') {
-    inputArea = '<div class="pay-input-box"><label style="display:block;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px">UPI ID</label><input type="text" id="upiId" value="' + p.upi + '" placeholder="yourname@upi" style="width:100%;padding:11px 14px;border:1.5px solid #e8ddd0;border-radius:8px;font-size:13.5px;font-family:inherit;outline:none;background:#fff"><div style="font-size:11.5px;color:var(--muted);margin-top:5px">e.g. name@okicici / name@ybl / name@paytm</div></div>';
-  } else if (p.method === 'card') {
+  if (p.method==='upi') {
+    inputArea = '<div class="pay-input-box"><label style="display:block;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px">UPI ID</label><input type="text" id="upiId" value="' + p.upi + '" placeholder="yourname@upi" style="width:100%;padding:11px 14px;border:1.5px solid #e8ddd0;border-radius:8px;font-size:13.5px;font-family:inherit;outline:none;background:#fff"><div style="font-size:11.5px;color:var(--muted);margin-top:5px">e.g. name@okicici / name@ybl</div></div>';
+  } else if (p.method==='card') {
     inputArea = '<div class="pay-input-box"><div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">'
       + '<div style="grid-column:1/-1"><label style="display:block;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">Card Number</label><input type="text" id="cardNum" maxlength="19" value="' + p.card + '" placeholder="1234 5678 9012 3456" style="width:100%;padding:11px 14px;border:1.5px solid #e8ddd0;border-radius:8px;font-size:14px;font-family:inherit;outline:none;background:#fff;letter-spacing:2px"></div>'
       + '<div style="grid-column:1/-1"><label style="display:block;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">Name on Card</label><input type="text" id="cardName" value="' + p.cardName + '" placeholder="Full name" style="width:100%;padding:11px 14px;border:1.5px solid #e8ddd0;border-radius:8px;font-size:13.5px;font-family:inherit;outline:none;background:#fff"></div>'
-      + '<div><label style="display:block;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">Expiry (MM/YY)</label><input type="text" id="cardExp" maxlength="5" value="' + p.expiry + '" placeholder="MM/YY" style="width:100%;padding:11px 14px;border:1.5px solid #e8ddd0;border-radius:8px;font-size:13.5px;font-family:inherit;outline:none;background:#fff"></div>'
-      + '<div><label style="display:block;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">CVV</label><input type="password" id="cardCvv" maxlength="4" value="' + p.cvv + '" placeholder="***" style="width:100%;padding:11px 14px;border:1.5px solid #e8ddd0;border-radius:8px;font-size:13.5px;font-family:inherit;outline:none;background:#fff"></div>'
+      + '<div><label style="display:block;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">Expiry (MM/YY)</label><input type="text" id="cardExp" maxlength="5" value="' + p.expiry + '" placeholder="MM/YY" style="width:100%;padding:11px 14px;border:1.5px solid #e8ddd0;border-radius:8px;font-family:inherit;outline:none;background:#fff"></div>'
+      + '<div><label style="display:block;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">CVV</label><input type="password" id="cardCvv" maxlength="4" value="' + p.cvv + '" placeholder="***" style="width:100%;padding:11px 14px;border:1.5px solid #e8ddd0;border-radius:8px;font-family:inherit;outline:none;background:#fff"></div>'
       + '</div></div>';
-  } else if (p.method === 'netbanking') {
+  } else if (p.method==='netbanking') {
     var banks = ['SBI','HDFC','ICICI','Axis','Kotak','PNB','Other'];
     inputArea = '<div class="pay-input-box"><label style="display:block;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px">Select Bank</label><div class="bank-grid">' + banks.map(function(b){ return '<button class="bank-btn ' + (p.bank===b?'sel':'') + '" onclick="setBank(\'' + b + '\')">' + b + '</button>'; }).join('') + '</div></div>';
-  } else if (p.method === 'cod') {
+  } else if (p.method==='cod') {
     inputArea = '<div class="pay-input-box" style="font-size:13.5px;color:var(--char);line-height:1.8">Pay &#8377;50 extra as COD handling fee at delivery. Available for orders up to &#8377;10,000.</div>';
   }
 
@@ -346,8 +604,8 @@ function renderStepPayment(cart, sec) {
   sec.innerHTML = stepBar('payment')
     + '<button class="back-step" onclick="goToStep(\'address\')">&#8592; Back to Address</button>'
     + '<div class="cart-layout"><div style="background:#fff;border-radius:var(--rad);padding:28px;box-shadow:var(--ss)">'
-    + '<h3 style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--dark);margin-bottom:22px">Choose Payment Method</h3>'
-    + optionsHtml + inputArea + '</div>' + sidebar + '</div>';
+    + '<h3 style="font-family:\'Cormorant Garamond\',serif;font-size:20px;font-weight:600;color:var(--dark);margin-bottom:22px">Choose Payment Method</h3>'
+    + opts + inputArea + '</div>' + sidebar + '</div>';
 }
 
 function renderStepConfirm(cart, sec) {
@@ -358,8 +616,9 @@ function renderStepConfirm(cart, sec) {
   var itemsHtml = cart.map(function(item, i) {
     return '<div style="display:flex;gap:12px;align-items:center;padding:10px 0;' + (i<cart.length-1?'border-bottom:1px solid #e8ddd0':'') + '">'
       + '<div style="width:50px;height:58px;border-radius:8px;background:#f7f0e8;flex-shrink:0"></div>'
-      + '<div style="flex:1"><div style="font-weight:600;font-size:14px;color:var(--dark)">' + item.name + '</div><div style="font-size:12px;color:var(--muted)">Size: ' + (item.size||'M') + '</div></div>'
-      + '<div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;color:#c1121f">' + fmtINR(item.price) + '</div></div>';
+      + '<div style="flex:1"><div style="font-weight:600;font-size:14px;color:var(--dark)">' + item.name + '</div>'
+      + '<div style="font-size:12px;color:var(--muted)">Size: ' + (item.size||'M') + '</div></div>'
+      + '<div style="font-family:\'Cormorant Garamond\',serif;font-size:16px;font-weight:600;color:#c1121f">' + fmtINR(item.price) + '</div></div>';
   }).join('');
 
   var payLabel = p.method==='upi' ? 'UPI: ' + (p.upi||'Not entered')
@@ -377,8 +636,8 @@ function renderStepConfirm(cart, sec) {
     + '<div class="summary-row"><span>Subtotal</span><span>' + fmtINR(t.sub) + '</span></div>'
     + '<div class="summary-row"><span>Shipping</span><span style="color:' + (t.ship===0?'#218838':'') + '">' + (t.ship===0?'Free':fmtINR(t.ship)) + '</span></div>'
     + '<div class="summary-row"><span>Festive Discount</span><span style="color:#218838">&#8722;' + fmtINR(t.fest) + '</span></div>'
-    + (cartState.discount > 0 ? '<div class="summary-row"><span>Coupon</span><span style="color:#218838">&#8722;' + fmtINR(t.cpn) + '</span></div>' : '')
-    + (p.method==='cod' ? '<div class="summary-row"><span>COD Fee</span><span>&#8377;50</span></div>' : '')
+    + (cartState.discount>0?'<div class="summary-row"><span>Coupon</span><span style="color:#218838">&#8722;' + fmtINR(t.cpn) + '</span></div>':'')
+    + (p.method==='cod'?'<div class="summary-row"><span>COD Fee</span><span>&#8377;50</span></div>':'')
     + '<div class="summary-row total"><span>Total</span><span style="color:#c1121f">' + fmtINR(t.total) + '</span></div>'
     + '<button class="chk-btn-big" style="background:linear-gradient(135deg,#c1121f,#8b0000)" onclick="placeOrder(' + t.total + ')">&#127881; Place Order</button>'
     + '<div style="text-align:center;margin-top:10px;font-size:11px;color:var(--muted)">Protected by Poshak Story guarantee</div></div>';
@@ -388,31 +647,31 @@ function renderStepConfirm(cart, sec) {
     + '<div class="cart-layout">' + left + bill + '</div>';
 }
 
-function goToStep(step) {
-  cartState.step = step;
-  renderCart();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
+/* ══════════════════════════════════════════════════════════
+   CART ACTIONS
+   ══════════════════════════════════════════════════════════ */
+function goToStep(step) { cartState.step = step; renderCart(); window.scrollTo({top:0,behavior:'smooth'}); }
 
 function removeItem(idx) {
   var cart = getCart();
   var removed = cart.splice(idx, 1)[0];
   saveCart(cart);
-  showToast(removed.name + ' removed');
+  showToast(removed.name + ' removed', 'info');
   renderCart();
 }
 
 function clearCart() {
-  if (confirm('Clear all items?')) { saveCart([]); renderCart(); }
+  if (confirm('Clear all items from cart?')) { saveCart([]); renderCart(); }
 }
 
 function applyCoupon() {
-  var code = document.getElementById('cpnInput').value.toUpperCase();
-  var codes = { FESTIVE30: 0.30, SAVE20: 0.20, POSHAK10: 0.10 };
+  var code  = document.getElementById('cpnInput').value.toUpperCase();
+  var codes = { FESTIVE30:0.30, SAVE20:0.20, POSHAK10:0.10 };
   if (codes[code]) {
     cartState.discount = codes[code];
-    cartState.couponLabel = Math.round(codes[code]*100) + '% OFF Applied!';
+    cartState.couponLabel = Math.round(codes[code]*100) + '% OFF Applied! &#10003;';
   } else {
+    cartState.discount = 0;
     cartState.couponLabel = 'Invalid code. Try: FESTIVE30';
   }
   renderCart();
@@ -420,7 +679,7 @@ function applyCoupon() {
 
 function setAddrType(t) { cartState.addr.type = t; renderCart(); }
 function setPayMethod(m) { cartState.pay.method = m; renderCart(); }
-function setBank(b) { cartState.pay.bank = b; renderCart(); }
+function setBank(b)      { cartState.pay.bank = b; renderCart(); }
 
 function submitAddress() {
   var fields = ['addrName','addrPhone','addrAddr','addrPin','addrCity','addrState'];
@@ -430,53 +689,266 @@ function submitAddress() {
     var el = document.getElementById(id);
     if (!el) return;
     cartState.addr[keys[i]] = el.value.trim();
-    if (!el.value.trim()) { el.style.borderColor = '#c1121f'; ok = false; }
-    else { el.style.borderColor = '#e8ddd0'; }
+    if (!el.value.trim()) { el.style.borderColor='#c1121f'; ok=false; }
+    else el.style.borderColor='#e8ddd0';
   });
-  if (!ok) { showToast('Please fill all required fields'); return; }
+  if (!ok) { showToast('Please fill all required fields', 'error'); return; }
   goToStep('payment');
 }
 
 function submitPayment() {
   var p = cartState.pay;
-  if (p.method === 'upi') {
-    var el = document.getElementById('upiId');
-    if (el) cartState.pay.upi = el.value.trim();
-  } else if (p.method === 'card') {
-    var cn = document.getElementById('cardNum');
-    var nm = document.getElementById('cardName');
-    var ex = document.getElementById('cardExp');
-    var cv = document.getElementById('cardCvv');
-    if (cn) cartState.pay.card = cn.value.trim();
-    if (nm) cartState.pay.cardName = nm.value.trim();
-    if (ex) cartState.pay.expiry = ex.value.trim();
-    if (cv) cartState.pay.cvv = cv.value.trim();
-  }
+  if (p.method==='upi')  { var el=document.getElementById('upiId');  if(el) cartState.pay.upi=el.value.trim(); }
+  if (p.method==='card') { var cn=document.getElementById('cardNum'); var nm=document.getElementById('cardName'); var ex=document.getElementById('cardExp'); var cv=document.getElementById('cardCvv'); if(cn)cartState.pay.card=cn.value.trim(); if(nm)cartState.pay.cardName=nm.value.trim(); if(ex)cartState.pay.expiry=ex.value.trim(); if(cv)cartState.pay.cvv=cv.value.trim(); }
   goToStep('confirm');
 }
 
+/* ── PLACE ORDER — clears cart & saves to orders ── */
 function placeOrder(total) {
-  var cart = getCart();
+  var cart    = getCart();
   var orderId = 'PS' + String(Date.now()).slice(-8);
-  var a = cartState.addr;
+  var a       = cartState.addr;
+  var p       = cartState.pay;
 
-  document.getElementById('cartSection').innerHTML =
+  /* Save order record */
+  var orders = getOrders();
+  orders.unshift({
+    id:        orderId,
+    date:      new Date().toISOString(),
+    items:     JSON.parse(JSON.stringify(cart)),
+    address:   JSON.parse(JSON.stringify(a)),
+    payment:   p.method,
+    total:     total,
+    status:    'placed',   /* placed | shipped | delivered | cancelled | returned | refunded */
+    canCancel: true,
+    canReturn: false
+  });
+  saveOrders(orders);
+
+  /* ✅ Clear cart after order */
+  saveCart([]);
+  updateCartCount();
+
+  /* Show success screen */
+  document.getElementById('view-cart').innerHTML =
     '<div style="padding:56px 20px"><div class="order-success">'
     + '<div style="font-size:64px;margin-bottom:16px">&#127881;</div>'
-    + '<h2 style="font-family:'Cormorant Garamond',serif;font-size:30px;color:var(--dark);margin-bottom:8px">Order Placed!</h2>'
+    + '<h2 style="font-family:\'Cormorant Garamond\',serif;font-size:30px;color:var(--dark);margin-bottom:8px">Order Placed!</h2>'
     + '<div style="background:#fdf8f2;border-radius:10px;padding:12px 16px;margin:14px 0;font-size:13px;color:var(--muted)">Order ID: <strong style="color:var(--dark)">' + orderId + '</strong></div>'
     + '<p style="color:var(--muted);font-size:13.5px;line-height:1.8;margin-bottom:10px">Thank you for shopping with Poshak Story.<br>Expected delivery: 5&#8722;7 business days.</p>'
     + '<div style="background:#fdf3f3;border-radius:10px;padding:14px 16px;margin:14px 0;font-size:13px;text-align:left;line-height:2">'
-    + '<div>Delivering to: ' + a.name + ', ' + a.city + ' ' + a.pincode + '</div>'
-    + '<div>Total paid: ' + fmtINR(total) + '</div></div>'
-    + '<button onclick="window.location.href=\'index.html\'" style="width:100%;background:#c1121f;color:#fff;border:none;padding:13px;border-radius:8px;font-size:13px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;font-family:inherit">Continue Shopping</button>'
-    + '</div></div>';
+    + '<div>&#128205; Delivering to: ' + a.name + ', ' + a.city + ' ' + a.pincode + '</div>'
+    + '<div>&#128176; Total paid: ' + fmtINR(total) + '</div></div>'
+    + '<div style="display:flex;gap:10px;flex-direction:column">'
+    + '<button onclick="showView(\'orders\')" style="width:100%;background:#c1121f;color:#fff;border:none;padding:13px;border-radius:8px;font-size:13px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;font-family:inherit">Track My Order &#128230;</button>'
+    + '<button onclick="window.location.href=\'index.html\'" style="width:100%;background:none;border:1.5px solid #e8ddd0;color:var(--char);padding:12px;border-radius:8px;font-size:13px;font-weight:600;font-family:inherit">Continue Shopping</button>'
+    + '</div></div></div>';
 
-  saveCart([]);
-  updateCartCount();
+  /* Reset cart state */
+  cartState = { step:'cart', addr:{name:'',phone:'',address:'',pincode:'',city:'',state:'',type:'Home'}, pay:{method:'upi',upi:'',card:'',cardName:'',expiry:'',cvv:'',bank:''}, discount:0, couponLabel:'' };
 }
 
-renderCart();
+/* ══════════════════════════════════════════════════════════
+   ORDERS VIEW
+   ══════════════════════════════════════════════════════════ */
+function renderOrders() {
+  var sec    = document.getElementById('view-orders');
+  var orders = getOrders();
+
+  if (orders.length === 0) {
+    sec.innerHTML = '<div class="empty-cart"><span class="empty-icon">&#128230;</span><h3>No orders yet</h3><p>Your orders will appear here after you place them.</p><a href="index.html" style="display:inline-block;background:#c1121f;color:white;padding:14px 36px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;letter-spacing:2px;text-transform:uppercase">Start Shopping</a></div>';
+    return;
+  }
+
+  var statusMap = {
+    placed:    ['Placed',    'badge-placed'],
+    shipped:   ['Shipped',   'badge-shipped'],
+    delivered: ['Delivered', 'badge-delivered'],
+    cancelled: ['Cancelled', 'badge-cancelled'],
+    returned:  ['Return Requested', 'badge-returned'],
+    refunded:  ['Refunded',  'badge-refunded']
+  };
+
+  var html = '<div style="max-width:720px;margin:0 auto">';
+  orders.forEach(function(order) {
+    var st = statusMap[order.status] || ['Unknown','badge-placed'];
+    var cardCls = order.status === 'cancelled' ? 'order-card cancelled' : order.status === 'returned' || order.status === 'refunded' ? 'order-card returned' : 'order-card';
+
+    html += '<div class="' + cardCls + '">'
+      + '<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:14px">'
+      + '<div>'
+      + '<div style="font-family:\'Cormorant Garamond\',serif;font-size:18px;font-weight:600;color:var(--dark)">Order #' + order.id + '</div>'
+      + '<div style="font-size:12px;color:var(--muted);margin-top:2px">Placed on ' + fmtDate(order.date) + ' &nbsp;&bull;&nbsp; ' + order.items.length + ' item' + (order.items.length>1?'s':'') + ' &nbsp;&bull;&nbsp; ' + fmtINR(order.total) + '</div>'
+      + '</div>'
+      + '<span class="order-status-badge ' + st[1] + '">' + st[0] + '</span>'
+      + '</div>';
+
+    /* Items list */
+    html += '<div style="margin-bottom:14px">';
+    order.items.slice(0,3).forEach(function(item) {
+      html += '<div style="font-size:13px;color:var(--char);padding:4px 0;border-bottom:1px dashed #e8ddd0">&#9670; ' + item.name + ' &mdash; <strong>' + fmtINR(item.price) + '</strong></div>';
+    });
+    if (order.items.length > 3) html += '<div style="font-size:12px;color:var(--muted);padding-top:6px">+' + (order.items.length-3) + ' more items</div>';
+    html += '</div>';
+
+    /* Delivery address */
+    if (order.address && order.address.name) {
+      html += '<div style="font-size:12.5px;color:var(--muted);margin-bottom:14px">&#128205; ' + order.address.name + ', ' + order.address.city + ' ' + order.address.pincode + '</div>';
+    }
+
+    /* Status timeline */
+    if (order.status === 'placed') {
+      html += '<div style="display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--muted);margin-bottom:14px">'
+        + '<span style="color:#c1121f;font-weight:600">&#9679; Confirmed</span><span>&#8212;&#8212;</span><span>Packed</span><span>&#8212;&#8212;</span><span>Shipped</span><span>&#8212;&#8212;</span><span>Delivered</span></div>';
+    } else if (order.status === 'cancelled') {
+      html += '<div style="font-size:13px;color:#c1121f;margin-bottom:14px">&#9888;&#65039; Order cancelled. Refund will be processed in 5&ndash;7 business days.</div>';
+    } else if (order.status === 'returned' || order.status === 'refunded') {
+      html += '<div style="font-size:13px;color:#f57f17;margin-bottom:14px">&#8617; Return requested. We will arrange pickup shortly. Refund in 5&ndash;7 business days.</div>';
+    }
+
+    /* Action buttons */
+    html += '<div style="display:flex;gap:10px;flex-wrap:wrap">';
+    if (order.status === 'placed') {
+      html += '<button onclick="openCancelModal(\'' + order.id + '\')" style="padding:8px 18px;border-radius:7px;border:1.5px solid #c1121f;background:none;color:#c1121f;font-size:12.5px;font-weight:600;font-family:inherit;transition:all .2s" onmouseover="this.style.background=\'#c1121f\';this.style.color=\'#fff\'" onmouseout="this.style.background=\'none\';this.style.color=\'#c1121f\'">&#128683; Cancel Order</button>';
+    }
+    if (order.status === 'delivered') {
+      html += '<button onclick="openReturnModal(\'' + order.id + '\')" style="padding:8px 18px;border-radius:7px;border:1.5px solid #c9a84c;background:none;color:#c9a84c;font-size:12.5px;font-weight:600;font-family:inherit;transition:all .2s" onmouseover="this.style.background=\'#c9a84c\';this.style.color=\'#fff\'" onmouseout="this.style.background=\'none\';this.style.color=\'#c9a84c\'">&#8617; Request Return</button>';
+    }
+    html += '<button onclick="showView(\'returns\')" style="padding:8px 18px;border-radius:7px;border:1.5px solid #e8ddd0;background:none;color:var(--muted);font-size:12.5px;font-family:inherit;transition:all .2s" onmouseover="this.style.borderColor=\'#c1121f\';this.style.color=\'#c1121f\'" onmouseout="this.style.borderColor=\'#e8ddd0\';this.style.color=\'var(--muted)\'">&#128203; Return Policy</button>';
+    html += '</div></div>';
+  });
+  html += '</div>';
+  sec.innerHTML = html;
+}
+
+/* ══════════════════════════════════════════════════════════
+   CANCEL & RETURN MODALS
+   ══════════════════════════════════════════════════════════ */
+function openCancelModal(orderId) {
+  activeCancelOrderId = orderId;
+  document.getElementById('cancelModal').classList.add('open');
+}
+function openReturnModal(orderId) {
+  activeReturnOrderId = orderId;
+  document.getElementById('returnModal').classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  activeCancelOrderId = null; activeReturnOrderId = null;
+}
+
+function confirmCancel() {
+  var reason = document.getElementById('cancelReason').value;
+  if (!reason) { showToast('Please select a reason', 'error'); return; }
+  var orders = getOrders();
+  orders = orders.map(function(o) {
+    if (o.id === activeCancelOrderId) { o.status = 'cancelled'; o.canCancel = false; o.cancelReason = reason; }
+    return o;
+  });
+  saveOrders(orders);
+  closeModal('cancelModal');
+  showToast('Order cancelled. Refund in 5\u20137 business days.', 'success');
+  renderOrders();
+}
+
+function confirmReturn() {
+  var reason = document.getElementById('returnReason').value;
+  if (!reason) { showToast('Please select a reason', 'error'); return; }
+  var orders = getOrders();
+  orders = orders.map(function(o) {
+    if (o.id === activeReturnOrderId) { o.status = 'returned'; o.canReturn = false; o.returnReason = reason; }
+    return o;
+  });
+  saveOrders(orders);
+  closeModal('returnModal');
+  showToast('Return requested! We will arrange pickup shortly.', 'success');
+  renderOrders();
+}
+
+/* Close modal on backdrop click */
+['cancelModal','returnModal','deleteModal'].forEach(function(id) {
+  var el = document.getElementById(id);
+  if (el) el.addEventListener('click', function(e) { if (e.target === el) closeModal(id); });
+});
+
+/* ══════════════════════════════════════════════════════════
+   ACCOUNT VIEW
+   ══════════════════════════════════════════════════════════ */
+function renderAccount() {
+  var user = null;
+  try { user = JSON.parse(localStorage.getItem('ps_logged_user')); } catch(e) {}
+  var info = document.getElementById('acct-info');
+  if (!info) return;
+  if (user) {
+    var orders = getOrders();
+    info.innerHTML =
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px 24px;font-size:13.5px">'
+      + '<div><span style="color:var(--muted);font-size:11.5px;letter-spacing:.5px;text-transform:uppercase">Name</span><div style="font-weight:600;margin-top:3px">' + (user.name||'—') + '</div></div>'
+      + '<div><span style="color:var(--muted);font-size:11.5px;letter-spacing:.5px;text-transform:uppercase">Email</span><div style="font-weight:600;margin-top:3px">' + (user.email||'—') + '</div></div>'
+      + '<div><span style="color:var(--muted);font-size:11.5px;letter-spacing:.5px;text-transform:uppercase">Total Orders</span><div style="font-weight:600;margin-top:3px">' + orders.length + '</div></div>'
+      + '<div><span style="color:var(--muted);font-size:11.5px;letter-spacing:.5px;text-transform:uppercase">Cart Items</span><div style="font-weight:600;margin-top:3px">' + getCart().length + '</div></div>'
+      + '</div>';
+  } else {
+    info.innerHTML = '<div style="color:var(--muted);font-size:13.5px">No account is currently logged in. <a href="index.html" style="color:#c1121f;font-weight:600">Sign in</a> to manage your account.</div>';
+  }
+}
+
+function showDeleteModal() {
+  var user = null;
+  try { user = JSON.parse(localStorage.getItem('ps_logged_user')); } catch(e) {}
+  if (!user) { showToast('No account is currently logged in.', 'error'); return; }
+  document.getElementById('deleteModal').classList.add('open');
+}
+
+function performDeleteAccount() {
+  var user = null;
+  try { user = JSON.parse(localStorage.getItem('ps_logged_user')); } catch(e) {}
+  if (!user) return;
+  var email = user.email || '';
+  localStorage.removeItem('ps_logged_user');
+  localStorage.removeItem('ps_cart_' + email);
+  localStorage.removeItem('ps_wl_' + email);
+  localStorage.removeItem('poshak_cart');
+  localStorage.removeItem('poshak_orders');
+  try {
+    var users = JSON.parse(localStorage.getItem('ps_users')) || [];
+    users = users.filter(function(u) { return u.email !== email; });
+    localStorage.setItem('ps_users', JSON.stringify(users));
+  } catch(e) {}
+  closeModal('deleteModal');
+  showToast('Account deleted. We\'re sorry to see you go.', 'error');
+  setTimeout(function() { window.location.href = 'index.html'; }, 2200);
+}
+
+/* ══════════════════════════════════════════════════════════
+   SUBSCRIBE
+   ══════════════════════════════════════════════════════════ */
+function doSubscribe() {
+  var email = document.getElementById('subEmail').value.trim();
+  if (typeof handleSubscription === 'function') {
+    handleSubscription(email, '');
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   INIT
+   ══════════════════════════════════════════════════════════ */
+/* Check URL hash for direct tab */
+
+/* Hash-based tab routing so footer links like cart.html#returns work */
+(function() {
+  var hash = window.location.hash;
+  if      (hash === '#orders')  showView('orders');
+  else if (hash === '#returns') showView('returns');
+  else if (hash === '#account') showView('account');
+  else                          showView('cart');
+})();
+
+document.addEventListener('DOMContentLoaded', function() {
+  renderCart();
+  updateCartCount();
+  initImageZoom && initImageZoom();
+});
 </script>
 </body>
 </html>

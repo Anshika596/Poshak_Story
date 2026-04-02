@@ -997,6 +997,10 @@ function Topbar({doSearch}){
                 <button className="drop-btn" onClick={()=>{navigate('track');setOpenNav(null);}}><span className="drop-ico">📦</span>My Orders</button>
                 <button className="drop-btn" onClick={()=>{navigate('wishlist');setOpenNav(null);}}><span className="drop-ico">♡</span>Wishlist</button>
                 <button className="drop-btn" style={{color:'#ef4444'}} onClick={()=>{logout();setOpenNav(null);}}><span className="drop-ico">↩</span>Logout</button>
+                <div style={{borderTop:'1px solid var(--bdr)',margin:'4px 0'}}/>
+                <button className="drop-btn" style={{color:'#dc2626',fontSize:12}} onClick={()=>{setOpenNav(null);if(window.confirm('Delete your account? This removes all your data and cannot be undone.')){if(window.confirm('Last chance — are you sure?')){const u=JSON.parse(localStorage.getItem('ps_logged_user')||'null');if(u){try{const us=JSON.parse(localStorage.getItem('ps_users')||'[]');localStorage.setItem('ps_users',JSON.stringify(us.filter(x=>x.email!==u.email)));}catch(e){}localStorage.removeItem('ps_logged_user');localStorage.removeItem('ps_cart_'+u.email);localStorage.removeItem('ps_wl_'+u.email);localStorage.removeItem('ps_orders');}logout();}}}}>
+                  <span className="drop-ico">🗑</span>Delete Account
+                </button>
               </div>
             )}
           </div>
@@ -1053,6 +1057,7 @@ function HeroBanner(){
 function ProductCard({product}){
   const {id,name,price,old,sub,badge,bg,img}=product;
   const [added,setAdded]=useState(false);
+  const [zoomed,setZoomed]=useState(false);
   const {dispatch}=useContext(CartCtx);
   const {toast}=useContext(ToastCtx);
   const {wishlist,toggleWish}=useContext(WishCtx);
@@ -1072,6 +1077,7 @@ function ProductCard({product}){
         <div className="pah">
           <button className="actb" onClick={e=>{e.stopPropagation();requireAuth(()=>toggleWish(product));}}>{wished?'❤️':'♡'}</button>
           <button className="actb" onClick={e=>{e.stopPropagation();navigate('detail:'+id);}}>👁</button>
+          <button className="actb" title="Zoom" onClick={e=>{e.stopPropagation();setZoomed(true);}}>🔍</button>
         </div>
       </div>
       <div className="pinfo">
@@ -1084,6 +1090,16 @@ function ProductCard({product}){
         </div>
         <button className={`addb${added?' done':''}`} onClick={doAdd}>{added?'✓ Added':'🛒 Add to Cart'}</button>
       </div>
+      {zoomed&&(
+        <div style={{position:'fixed',inset:0,background:'rgba(8,3,0,.94)',backdropFilter:'blur(10px)',zIndex:999990,display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column',gap:16}}
+          onClick={()=>setZoomed(false)}>
+          <button onClick={()=>setZoomed(false)}
+            style={{position:'absolute',top:24,right:28,background:'rgba(255,255,255,.1)',border:'1.5px solid rgba(255,255,255,.25)',color:'#fff',width:40,height:40,borderRadius:'50%',fontSize:16,display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
+          <img src={img} alt={name} onClick={e=>e.stopPropagation()}
+            style={{maxWidth:'88vw',maxHeight:'82vh',objectFit:'contain',borderRadius:14,boxShadow:'0 32px 90px rgba(0,0,0,.7)',imageRendering:'high-quality'}}/>
+          <div style={{color:'rgba(255,255,255,.6)',fontSize:13,letterSpacing:.5}}>{name} &nbsp;·&nbsp; Click outside to close</div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1112,6 +1128,8 @@ function ProductListPage({cat}){
 function DetailPage({productId}){
   const product=ALL.find(p=>p.id===productId);
   const [qty,setQty]=useState(1);const [selSz,setSelSz]=useState('M');const [added,setAdded]=useState(false);
+  const [imgZoomed,setImgZoomed]=useState(false);
+  useEffect(()=>{const h=e=>{if(e.key==='Escape')setImgZoomed(false);};window.addEventListener('keydown',h);return()=>window.removeEventListener('keydown',h);},[]);
   const {dispatch}=useContext(CartCtx);const {toast}=useContext(ToastCtx);
   const {wishlist,toggleWish}=useContext(WishCtx);const {requireAuth}=useContext(AuthCtx);
   const navigate=useContext(NavCtx);
@@ -1128,7 +1146,12 @@ function DetailPage({productId}){
     <div className="pgh"><span className="pg-eye">{META[cat]?.eye||'Collection'}</span><h1 className="pg-ttl">{name}</h1><div className="pg-ln"/></div>
     <button className="back-l" onClick={()=>navigate(cat)}>← Back to {META[cat]?.title}</button>
     <div className="pd-wrap">
-      <div><div className="pd-main"><img src={img} alt={name}/></div></div>
+      <div>
+        <div className="pd-main" style={{cursor:'zoom-in',position:'relative'}} onClick={()=>setImgZoomed(true)}>
+          <img src={img} alt={name}/>
+          <div style={{position:'absolute',bottom:12,right:12,background:'rgba(0,0,0,.55)',color:'#fff',fontSize:11.5,padding:'5px 10px',borderRadius:6,pointerEvents:'none'}}>🔍 Click to zoom</div>
+        </div>
+      </div>
       <div className="pd-info">
         <div className="pd-eye">{sub}</div>
         {badge&&<span style={{display:'inline-block',background:'var(--cr)',color:'#fff',fontSize:10,fontWeight:700,padding:'3px 10px',borderRadius:4,letterSpacing:1,textTransform:'uppercase',marginBottom:4}}>{badge}</span>}
@@ -1173,6 +1196,16 @@ function DetailPage({productId}){
         <div className="slabel" style={{marginBottom:28}}><span className="seye">You May Also Like</span><h2>Related Products</h2><div className="sln"/></div>
         <div className="pgrid">{related.map(p=><ProductCard key={p.id} product={p}/>)}</div>
       </section>
+    )}
+    {imgZoomed&&(
+      <div style={{position:'fixed',inset:0,background:'rgba(8,3,0,.94)',backdropFilter:'blur(10px)',zIndex:999990,display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column',gap:16}}
+        onClick={()=>setImgZoomed(false)}>
+        <button onClick={()=>setImgZoomed(false)}
+          style={{position:'absolute',top:24,right:28,background:'rgba(255,255,255,.1)',border:'1.5px solid rgba(255,255,255,.25)',color:'#fff',width:42,height:42,borderRadius:'50%',fontSize:16,display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
+        <img src={img} alt={name} onClick={e=>e.stopPropagation()}
+          style={{maxWidth:'90vw',maxHeight:'84vh',objectFit:'contain',borderRadius:14,boxShadow:'0 32px 90px rgba(0,0,0,.7)'}}/>
+        <div style={{color:'rgba(255,255,255,.55)',fontSize:13}}>{name} &nbsp;·&nbsp; Click outside to close &nbsp;·&nbsp; ESC to exit</div>
+      </div>
     )}
   </>);
 }
@@ -1724,6 +1757,7 @@ function CartPage({cart,dispatch,navigate}){
                   userId: user?.id || null,
                 };
                 saveOrder(orderData);
+                dispatch({type:'CLEAR'});
                 setOrderDone(true);
                 window.scrollTo({top:0});
               }}>Place Order ✓</button>
@@ -1767,10 +1801,35 @@ function WishlistPage(){
 /* ══════ TRACK PAGE ═══════════════════════════════════════════ */
 function TrackPage(){
   const [searchId,setSearchId] = useState('');
-  const [searched,setSearched] = useState(null); // the result of a manual search
-  const [tick,setTick]         = useState(0);    // forces re-render every 30s
+  const [searched,setSearched] = useState(null);
+  const [tick,setTick]         = useState(0);
+  const [cancelId,setCancelId] = useState(null);
+  const [returnId,setReturnId] = useState(null);
+  const [cancelReason,setCancelReason] = useState('');
+  const [returnReason,setReturnReason] = useState('');
+  const [, forceUpdate]        = useState(0);
   const navigate               = useContext(NavCtx);
   const {user}                 = useContext(AuthCtx);
+  const {toast}                = useContext(ToastCtx);
+
+  const doCancel = () => {
+    if(!cancelReason){toast('Please select a reason.');return;}
+    const orders = getOrders();
+    const updated = orders.map(o => o.id===cancelId ? {...o, status:'Cancelled', cancelReason, canCancel:false} : o);
+    localStorage.setItem('ps_orders', JSON.stringify(updated));
+    setCancelId(null); setCancelReason('');
+    toast('Order cancelled. Refund in 5–7 business days.');
+    forceUpdate(x=>x+1);
+  };
+  const doReturn = () => {
+    if(!returnReason){toast('Please select a reason.');return;}
+    const orders = getOrders();
+    const updated = orders.map(o => o.id===returnId ? {...o, status:'Return Requested', returnReason} : o);
+    localStorage.setItem('ps_orders', JSON.stringify(updated));
+    setReturnId(null); setReturnReason('');
+    toast('Return requested! Pickup within 3–5 business days.');
+    forceUpdate(x=>x+1);
+  };
 
   // Re-render every 30 seconds so progress updates live
   useEffect(()=>{
@@ -1832,7 +1891,7 @@ function TrackPage(){
           ))}
         </div>
 
-        {/* Order items + delivery */}
+        {/* Items list + delivery ... existing code */}
         <div style={{borderTop:'1px solid var(--bdr)',padding:'16px 24px',display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
           <div>
             <div style={{fontSize:11,fontWeight:700,color:'var(--muted)',letterSpacing:1,textTransform:'uppercase',marginBottom:10}}>Items Ordered</div>
@@ -1861,6 +1920,27 @@ function TrackPage(){
               </div>
             </div>
           </div>
+        </div>
+        {/* Action buttons */}
+        <div style={{borderTop:'1px solid var(--bdr)',padding:'14px 24px',display:'flex',gap:10,flexWrap:'wrap'}}>
+          {order.status==='Order Placed' && !order.cancelReason && (
+            <button onClick={()=>{setCancelId(order.id);setCancelReason('');}}
+              style={{padding:'8px 18px',borderRadius:8,border:'1.5px solid var(--cr)',background:'none',color:'var(--cr)',fontSize:13,fontWeight:600,transition:'all .2s'}}
+              onMouseOver={e=>{e.target.style.background='var(--cr)';e.target.style.color='#fff';}}
+              onMouseOut={e=>{e.target.style.background='none';e.target.style.color='var(--cr)';}}>
+              🚫 Cancel Order
+            </button>
+          )}
+          {order.status==='Delivered' && !order.returnReason && (
+            <button onClick={()=>{setReturnId(order.id);setReturnReason('');}}
+              style={{padding:'8px 18px',borderRadius:8,border:'1.5px solid var(--gold)',background:'none',color:'var(--gold)',fontSize:13,fontWeight:600,transition:'all .2s'}}
+              onMouseOver={e=>{e.target.style.background='var(--gold)';e.target.style.color='#fff';}}
+              onMouseOut={e=>{e.target.style.background='none';e.target.style.color='var(--gold)';}}>
+              ↩ Request Return
+            </button>
+          )}
+          {order.cancelReason && <span style={{fontSize:13,color:'var(--cr)',padding:'8px 0'}}>❌ Cancelled — Refund in 5–7 business days</span>}
+          {order.returnReason && <span style={{fontSize:13,color:'var(--gold)',padding:'8px 0'}}>↩ Return requested — pickup within 3–5 days</span>}
         </div>
       </div>
     );
@@ -1914,6 +1994,56 @@ function TrackPage(){
         </div>
       )}
     </div>
+
+    {/* ── CANCEL ORDER MODAL ── */}
+    {cancelId&&(
+      <div style={{position:'fixed',inset:0,background:'rgba(10,5,0,.72)',backdropFilter:'blur(4px)',zIndex:99999,display:'flex',alignItems:'center',justifyContent:'center'}} onClick={()=>setCancelId(null)}>
+        <div style={{background:'#fff',borderRadius:20,padding:'36px 32px',maxWidth:440,width:'90%',textAlign:'center',boxShadow:'0 30px 80px rgba(0,0,0,.25)'}} onClick={e=>e.stopPropagation()}>
+          <div style={{fontSize:44,marginBottom:12}}>🚫</div>
+          <h3 style={{fontFamily:"'Playfair Display',serif",fontSize:22,fontWeight:700,color:'var(--ink)',marginBottom:8}}>Cancel Order?</h3>
+          <p style={{color:'var(--muted)',fontSize:13.5,lineHeight:1.8,marginBottom:20}}>Please tell us why you want to cancel. Refund within 5–7 business days.</p>
+          <select value={cancelReason} onChange={e=>setCancelReason(e.target.value)}
+            style={{width:'100%',padding:'11px 14px',border:'1.5px solid var(--bdr)',borderRadius:9,fontSize:13.5,fontFamily:'inherit',outline:'none',background:'var(--sand)',color:'var(--ink)',marginBottom:16}}>
+            <option value=''>Select a reason…</option>
+            <option>Changed my mind</option>
+            <option>Found a better price elsewhere</option>
+            <option>Ordered by mistake</option>
+            <option>Delivery time too long</option>
+            <option>Payment issue</option>
+            <option>Other reason</option>
+          </select>
+          <div style={{display:'flex',gap:10}}>
+            <button onClick={()=>setCancelId(null)} style={{flex:1,padding:12,borderRadius:9,border:'1.5px solid var(--bdr)',background:'none',color:'var(--char)',fontSize:13,fontWeight:600,fontFamily:'inherit'}}>Keep Order</button>
+            <button onClick={doCancel} style={{flex:1,padding:12,borderRadius:9,border:'none',background:'var(--cr)',color:'#fff',fontSize:13,fontWeight:600,fontFamily:'inherit'}}>Yes, Cancel</button>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* ── RETURN REQUEST MODAL ── */}
+    {returnId&&(
+      <div style={{position:'fixed',inset:0,background:'rgba(10,5,0,.72)',backdropFilter:'blur(4px)',zIndex:99999,display:'flex',alignItems:'center',justifyContent:'center'}} onClick={()=>setReturnId(null)}>
+        <div style={{background:'#fff',borderRadius:20,padding:'36px 32px',maxWidth:440,width:'90%',textAlign:'center',boxShadow:'0 30px 80px rgba(0,0,0,.25)'}} onClick={e=>e.stopPropagation()}>
+          <div style={{fontSize:44,marginBottom:12}}>↩</div>
+          <h3 style={{fontFamily:"'Playfair Display',serif",fontSize:22,fontWeight:700,color:'var(--ink)',marginBottom:8}}>Request Return?</h3>
+          <p style={{color:'var(--muted)',fontSize:13.5,lineHeight:1.8,marginBottom:20}}>Item must be unused with original tags. Free pickup within 3–5 days.</p>
+          <select value={returnReason} onChange={e=>setReturnReason(e.target.value)}
+            style={{width:'100%',padding:'11px 14px',border:'1.5px solid var(--bdr)',borderRadius:9,fontSize:13.5,fontFamily:'inherit',outline:'none',background:'var(--sand)',color:'var(--ink)',marginBottom:16}}>
+            <option value=''>Select a reason…</option>
+            <option>Item doesn't fit</option>
+            <option>Wrong item received</option>
+            <option>Item is damaged</option>
+            <option>Quality not as expected</option>
+            <option>Changed my mind</option>
+            <option>Other reason</option>
+          </select>
+          <div style={{display:'flex',gap:10}}>
+            <button onClick={()=>setReturnId(null)} style={{flex:1,padding:12,borderRadius:9,border:'1.5px solid var(--bdr)',background:'none',color:'var(--char)',fontSize:13,fontWeight:600,fontFamily:'inherit'}}>Cancel</button>
+            <button onClick={doReturn} style={{flex:1,padding:12,borderRadius:9,border:'none',background:'var(--gold)',color:'#fff',fontSize:13,fontWeight:600,fontFamily:'inherit'}}>Submit Return</button>
+          </div>
+        </div>
+      </div>
+    )}
   </>);
 }
 
@@ -2061,7 +2191,18 @@ function HomePage(){
     <section className="nl-sec">
       <h2>Join the Poshak Story Family</h2>
       <p>Subscribe for exclusive deals, new arrivals & style inspiration.</p>
-      <form className="nl-f" onSubmit={e=>{e.preventDefault();if(!email)return;toast('Subscribed! Welcome to Poshak Story 🎉');setEmail('');}}>
+      <form className="nl-f" onSubmit={e=>{
+        e.preventDefault();
+        if(!email)return;
+        // Save subscriber
+        try{const subs=JSON.parse(localStorage.getItem('poshak_subscribers')||'[]');if(!subs.some(s=>s.email===email)){subs.push({email,date:new Date().toISOString()});localStorage.setItem('poshak_subscribers',JSON.stringify(subs));}}catch(ex){}
+        toast('Subscribed! 🎉 Check your inbox for a welcome gift.');
+        // Open mailto with thank-you email
+        const sub=encodeURIComponent('Welcome to Poshak Story — Your Exclusive Offer Inside!');
+        const body=encodeURIComponent('Dear Valued Customer,\n\nThank you for subscribing to Poshak Story!\n\nYour exclusive subscriber coupon: FESTIVE30 (30% OFF)\n\nShop our latest collections:\n• Women: Lehenga, Saree, Kurtis\n• Men: Kurta, Suits, Sherwani\n• Kids: Girls & Boys Ethnic Wear\n\nFree shipping on orders above ₹2,999.\n\n📍 Visit us: Shop 7, Sector 17, Chandigarh\n🕐 Mon–Sat: 10 AM – 8 PM | Sun: 11 AM – 6 PM\n\nWith love,\nThe Poshak Story Team\n© 2025 Poshak Story. All rights reserved.');
+        setTimeout(()=>{window.location.href='mailto:'+encodeURIComponent(email)+'?subject='+sub+'&body='+body;},600);
+        setEmail('');
+      }}>
         <input type="email" placeholder="Your email address" value={email} onChange={e=>setEmail(e.target.value)} required/>
         <button type="submit">Subscribe</button>
       </form>
@@ -2080,6 +2221,12 @@ function Footer(){
         <div className="fb">
           <span className="brand">Poshak <em style={{color:'var(--cr)'}}>Story.</em></span>
           <p>Celebrating the beauty of Indian ethnic fashion. Handcrafted with love, delivered with care across India.</p>
+          <div style={{fontSize:12.5,color:'rgba(255,255,255,.5)',lineHeight:1.9,marginBottom:14}}>
+            <div style={{color:'rgba(255,255,255,.75)',fontWeight:600,marginBottom:4}}>📍 Visit Our Store</div>
+            Shop 7, Sector 17, Chandigarh, Punjab<br/>
+            Mon–Sat: 10 AM – 8 PM &nbsp;|&nbsp; Sun: 11 AM – 6 PM<br/>
+            📞 +91 98765 43210 &nbsp;|&nbsp; ✉ hello@poshakstory.in
+          </div>
           <div className="soc-r">{['📷','👍','📌','▶'].map(s=><button key={s} className="soc-b">{s}</button>)}</div>
         </div>
         {cols.map(col=><div key={col.h} className="fc"><h4>{col.h}</h4>{col.items.map(it=><button key={it.l} onClick={()=>it.r&&navigate(it.r)}>{it.l}</button>)}</div>)}
