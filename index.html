@@ -614,6 +614,7 @@ function Toast({msg,show}){
 /* ══════ AUTH MODAL ═══════════════════════════════════════════ */
 function AuthModal({mode:initMode,onClose}){
   const [mode,setMode]     = useState(initMode||'login');
+  // mode: 'login' | 'register' | 'forgot' | 'reset'
   const [name,setName]     = useState('');
   const [email,setEmail]   = useState('');
   const [phone,setPhone]   = useState('');
@@ -622,7 +623,7 @@ function AuthModal({mode:initMode,onClose}){
   const [errs,setErrs]     = useState({});
   const [globalErr,setGE]  = useState('');
   const [loading,setLoad]  = useState(false);
-  /* OTP states */
+  /* OTP states — shared between register & password-reset flows */
   const [otpSent,setOtpSent]     = useState(false);
   const [otpVal,setOtpVal]       = useState('');
   const [otpInput,setOtpInput]   = useState('');
@@ -630,6 +631,8 @@ function AuthModal({mode:initMode,onClose}){
   const [otpLoading,setOtpLoading] = useState(false);
   const [otpTimer,setOtpTimer]   = useState(0);
   const [pendingUser,setPendingUser] = useState(null);
+  const [newPass,setNewPass]     = useState('');
+  const [newPassC,setNewPassC]   = useState('');
   const timerRef = useRef(null);
   const {setUser} = useContext(AuthCtx);
 
@@ -652,7 +655,6 @@ function AuthModal({mode:initMode,onClose}){
   /* Send OTP via EmailJS free tier */
   const sendOTP = async(otp, toEmail, toName) => {
     try{
-      /* EmailJS free public key — works out of box for demo */
       const payload = {
         service_id:  'service_gmail',
         template_id: 'template_poshak_otp',
@@ -681,29 +683,34 @@ function AuthModal({mode:initMode,onClose}){
       if(pass!==cpass) e.cpass='Passwords do not match';
     }
     if(!RE_EMAIL.test(email.trim())) e.email='Enter a valid email address';
-    if(pass.length<6) e.pass='Minimum 6 characters';
+    if(mode!=='forgot') if(pass.length<6) e.pass='Minimum 6 characters';
     setErrs(e);
     return Object.keys(e).length===0;
   };
 
-  /* Step 1 — validate & send OTP (register) or check creds (login) */
+  /* Step 1 — validate & send OTP (register/forgot) or check creds (login) */
   const submit = () => {
     if(!validate()) return;
     setLoad(true);
     setTimeout(()=>{
       const users=getUsers();
       if(mode==='register'){
-        if(users.find(u=>u.email===email.toLowerCase())){setGE('Email already registered. Please log in.');setLoad(false);return;}
-        /* Store pending user, generate & send OTP */
+        /* ── FIX: after account deletion, ps_users entry is removed,
+           so the same email can be used to create a fresh account ── */
+        const existing = users.find(u=>u.email===email.toLowerCase());
+        if(existing){setGE('Email already registered. Please log in or reset your password.');setLoad(false);return;}
         const u={id:Date.now(),name:name.trim(),email:email.toLowerCase(),phone:phone.replace(/\s/g,''),pass};
         setPendingUser(u);
-        const otp=genOTP();
-        setOtpVal(otp);
-        /* Try real email; always show OTP in UI as fallback */
+        const otp=genOTP(); setOtpVal(otp);
         sendOTP(otp, email.trim(), name.trim());
-        setOtpSent(true);
-        startTimer();
-        setLoad(false);
+        setOtpSent(true); startTimer(); setLoad(false);
+      } else if(mode==='forgot'){
+        /* Check if account exists for this email */
+        const existing = users.find(u=>u.email===email.toLowerCase());
+        if(!existing){setGE('No account found with this email address.');setLoad(false);return;}
+        const otp=genOTP(); setOtpVal(otp);
+        sendOTP(otp, email.trim(), existing.name);
+        setOtpSent(true); startTimer(); setLoad(false);
       } else {
         const u=users.find(x=>x.email===email.toLowerCase()&&x.pass===pass);
         if(!u){setGE('Invalid email or password.');setLoad(false);return;}
@@ -718,14 +725,35 @@ function AuthModal({mode:initMode,onClose}){
   /* Step 2 — verify OTP and complete registration */
   const verifyOTP = () => {
     if(otpInput.trim()===otpVal){
-      const users=getUsers();
-      saveUsers([...users,pendingUser]);
-      const safe={id:pendingUser.id,name:pendingUser.name,email:pendingUser.email,phone:pendingUser.phone};
-      localStorage.setItem('ps_logged_user',JSON.stringify(safe));
-      setUser(safe); onClose();
+      if(mode==='register'){
+        const users=getUsers();
+        saveUsers([...users,pendingUser]);
+        const safe={id:pendingUser.id,name:pendingUser.name,email:pendingUser.email,phone:pendingUser.phone};
+        localStorage.setItem('ps_logged_user',JSON.stringify(safe));
+        setUser(safe); onClose();
+      } else if(mode==='forgot'){
+        /* OTP verified — show password reset fields */
+        setOtpSent(false);
+        setMode('reset');
+        setOtpInput(''); setOtpErr('');
+      }
     } else {
       setOtpErr('Incorrect OTP. Please try again.');
     }
+  };
+
+  /* Step 3 — save new password (reset flow) */
+  const saveNewPassword = () => {
+    if(newPass.length<6){setGE('Password must be at least 6 characters.');return;}
+    if(newPass!==newPassC){setGE('Passwords do not match.');return;}
+    const users=getUsers();
+    const updated=users.map(u=>u.email===email.toLowerCase()?{...u,pass:newPass}:u);
+    saveUsers(updated);
+    /* Auto login after reset */
+    const u=updated.find(x=>x.email===email.toLowerCase());
+    const safe={id:u.id,name:u.name,email:u.email,phone:u.phone};
+    localStorage.setItem('ps_logged_user',JSON.stringify(safe));
+    setUser(safe); onClose();
   };
 
   const resendOTP = () => {
@@ -744,7 +772,7 @@ function AuthModal({mode:initMode,onClose}){
           <button className="auth-close" onClick={onClose}>✕</button>
           <div style={{fontSize:44,marginBottom:8}}>📧</div>
           <span className="auth-brand">✦ POSHAK STORY</span>
-          <h2 style={{fontSize:24}}>Verify Your Email</h2>
+          <h2 style={{fontSize:24}}>{mode==='forgot'?'Reset Password':'Verify Your Email'}</h2>
           <p style={{fontSize:13,marginTop:4}}>OTP sent to <strong style={{color:'var(--gold-l)'}}>{email}</strong></p>
         </div>
         <div className="auth-body">
@@ -766,7 +794,7 @@ function AuthModal({mode:initMode,onClose}){
           </div>
           <button className="auth-submit" onClick={verifyOTP} disabled={otpInput.length!==6}
             style={{marginTop:4,fontSize:15,padding:14,opacity:otpInput.length===6?1:.5}}>
-            ✓ Verify &amp; Create Account
+            {mode==='forgot'?'✓ Verify OTP →':'✓ Verify & Create Account'}
           </button>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:16,fontSize:13}}>
             <button onClick={()=>{setOtpSent(false);setOtpInput('');setOtpErr('');}} style={{background:'none',border:'none',color:'var(--muted)',fontSize:12.5,padding:0}}>← Change email</button>
@@ -774,6 +802,69 @@ function AuthModal({mode:initMode,onClose}){
               ? <span style={{color:'var(--muted)'}}>Resend in <strong style={{color:'var(--cr)'}}>{otpTimer}s</strong></span>
               : <button onClick={resendOTP} style={{background:'none',border:'none',color:'var(--cr)',fontWeight:700,fontSize:13,padding:0}}>🔄 Resend OTP</button>
             }
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  /* ── Password reset screen (after OTP verified in forgot flow) ── */
+  if(mode==='reset') return(
+    <div className="auth-overlay" onClick={onClose}>
+      <div className="auth-box" onClick={e=>e.stopPropagation()}>
+        <div className="auth-head" style={{textAlign:'center'}}>
+          <button className="auth-close" onClick={onClose}>✕</button>
+          <div style={{fontSize:44,marginBottom:8}}>🔑</div>
+          <span className="auth-brand">✦ POSHAK STORY</span>
+          <h2 style={{fontSize:24}}>Set New Password</h2>
+          <p style={{fontSize:13,color:'var(--gold-l)',marginTop:4}}>{email}</p>
+        </div>
+        <div className="auth-body">
+          <div className="auth-field">
+            <label className="auth-label">New Password</label>
+            <input className="auth-inp" type="password" placeholder="Min. 6 characters"
+              value={newPass} onChange={e=>{setNewPass(e.target.value);setGE('');}}
+              onKeyDown={e=>e.key==='Enter'&&saveNewPassword()} autoFocus/>
+          </div>
+          <div className="auth-field">
+            <label className="auth-label">Confirm New Password</label>
+            <input className={`auth-inp${globalErr&&globalErr.includes('match')?' err':''}`} type="password" placeholder="Repeat new password"
+              value={newPassC} onChange={e=>{setNewPassC(e.target.value);setGE('');}}
+              onKeyDown={e=>e.key==='Enter'&&saveNewPassword()}/>
+          </div>
+          {globalErr&&<div className="auth-globalerr">⚠ {globalErr}</div>}
+          <button className="auth-submit" onClick={saveNewPassword} style={{marginTop:8}}>
+            🔒 Save Password & Log In
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  /* ── Forgot password screen ──────────────────────────── */
+  if(mode==='forgot') return(
+    <div className="auth-overlay" onClick={onClose}>
+      <div className="auth-box" onClick={e=>e.stopPropagation()}>
+        <div className="auth-head">
+          <button className="auth-close" onClick={onClose}>✕</button>
+          <span className="auth-brand">✦ POSHAK STORY</span>
+          <h2>Reset Password</h2>
+          <p>Enter your registered email. We'll send you an OTP to reset your password.</p>
+        </div>
+        <div className="auth-body">
+          <div className="auth-field">
+            <label className="auth-label">Email Address</label>
+            <input className={`auth-inp${errs.email?' err':''}`} type="email" placeholder="you@example.com"
+              value={email} onChange={e=>{setEmail(e.target.value);setErr('email','');setGE('');}}
+              onKeyDown={e=>e.key==='Enter'&&submit()} autoFocus/>
+            <ErrMsg k="email"/>
+          </div>
+          {globalErr&&<div className="auth-globalerr">⚠ {globalErr}</div>}
+          <button className="auth-submit" onClick={submit} disabled={loading}>
+            {loading?'Sending OTP…':'Send Reset OTP →'}
+          </button>
+          <div className="auth-switch">
+            <span>Remember your password? <button onClick={()=>{setMode('login');clearErrs();}}>Sign in</button></span>
           </div>
         </div>
       </div>
@@ -840,6 +931,13 @@ function AuthModal({mode:initMode,onClose}){
           <button className="auth-submit" onClick={submit} disabled={loading}>
             {loading?'Please wait…':mode==='login'?'Sign In →':'Send OTP & Verify →'}
           </button>
+          {mode==='login'&&(
+            <div style={{textAlign:'right',marginTop:-6,marginBottom:4}}>
+              <button onClick={()=>{setMode('forgot');clearErrs();}} style={{background:'none',border:'none',color:'var(--cr)',fontSize:12.5,padding:0,fontWeight:500}}>
+                Forgot password?
+              </button>
+            </div>
+          )}
           <div className="auth-switch">
             {mode==='login'
               ?<span>New to Poshak Story? <button onClick={()=>{setMode('register');clearErrs();}}>Create account</button></span>
